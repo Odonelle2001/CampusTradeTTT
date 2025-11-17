@@ -23,7 +23,7 @@
       <a href="AboutPage.php">About</a>
       <a href="SignUpPage.php">Sign Up</a>
       <a href="LoginPage.php">Login</a>
-      <a href="ContactPage.php">Contact</aS>
+      <a href="ContactPage.php">Contact</a>
        <?php if (isset($_SESSION['user_id'])): ?>
     <a href="logout.php">Logout</a>
   <?php endif; ?>
