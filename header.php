@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="CSS/ReusableComponents.css"> <!-- Buttons, cards, modals -->
   <link rel="stylesheet" href="CSS/LoginForm.css">
   <link rel="stylesheet" href="CSS/BuyButtonPage.css">
+  <link rel="stylesheet" href="css/BuyerPage.css">
 
 </head>
 <body>
@@ -22,9 +23,9 @@
       <a href="AboutPage.php">About</a>
       <a href="SignUpPage.php">Sign Up</a>
       <a href="LoginPage.php">Login</a>
-      <a href="ContactPage.php">Contact</a>
+      <a href="ContactPage.php">Contact</aS>
        <?php if (isset($_SESSION['user_id'])): ?>
     <a href="logout.php">Logout</a>
   <?php endif; ?>
-    </nav>
+  </nav>
   </header>

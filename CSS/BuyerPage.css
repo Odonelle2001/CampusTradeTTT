@@ -1,0 +1,366 @@
+/* =========================
+   Root + Page background
+   ========================= */
+:root {
+  --navH: 130px;
+  --teal-bg: #073642;
+  --orange: #FF6600;
+  --orange-press: #e65c00;
+  --ink: rgba(255,255,255,0.36);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--teal-bg);
+  color: #073642;
+}
+
+/* =========================
+   Main container
+   ========================= */
+.container-card {
+  width: 85%;
+  margin: 40px auto;
+  background: #f9eedc;
+  border-radius: 12px;
+  border: 10px solid #f4a12a;
+  padding: 26px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.16);
+  position: relative;
+}
+
+/* top-right buttons */
+.top-actions {
+  position: absolute;
+  right: 22px;
+  top: 18px;
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+
+
+.btn {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 600;
+  font-size: 25px;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.08);
+}
+
+.btn.switch {
+  background: #FF8351;
+}
+
+.btn.logout {
+  background: #0f3940;
+}
+
+/* update profile specific button */
+.update-profile-btn {
+  background:  #FF8351;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.update-profile-btn:hover {
+  background: var(--orange-press);
+}
+
+/* =========================
+   Two-column layout
+   ========================= */
+.content-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr; /* profile fixed, library flexible */
+  gap: 22px;
+  align-items: flex-start;
+  margin-top: 60px;  /* pushed down to create space under buttons */
+}
+
+/* =========================
+   Profile card (left)
+   ========================= */
+.profile-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 18px;
+  min-height: 520px;
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.02);
+}
+
+.profile-card h2 {
+  margin-top: 0;
+  text-decoration: underline;
+  color: #0f3940;
+}
+
+.profile-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* avatar */
+.avatar-uploader {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.avatar {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--orange);
+  border: 2px solid #FFA500;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-text {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #fff;
+}
+
+/* profile info */
+.profile-info {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 16px 0;
+  color: #0f3940;
+}
+
+.profile-info li {
+  padding: 6px 0;
+}
+
+/* =========================
+   Library (right)
+   ========================= */
+.library-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 18px;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* search/filter row */
+.library-top {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+/* search box with icon inside */
+.search-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+}
+
+.search-wrap input[type="text"] {
+  width: 100%;
+  padding: 10px 44px 10px 14px; /* extra right padding for icon */
+  border-radius: 6px;
+  border: 2px solid #f0d6c0;
+  background: #fff;
+  font-size: 14px;
+}
+
+/* search icon button inside input */
+.search-wrap .icon-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+}
+
+.search-wrap .icon-btn:hover {
+  opacity: 0.8;
+}
+
+/* department dropdown */
+.library-top select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 2px solid #f0d6c0;
+  background: #fff;
+}
+
+/* wrapper (orange outline) */
+.books-grid-wrapper {
+  padding: 14px;
+  border-radius: 10px;
+  border: 2px solid #f4a12a;
+  background: #fff6f0;
+  margin-top: 6px;
+}
+
+/* grid itself */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+/* book card */
+.book-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+  border: 1px solid #f0d6c0;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 120px;
+}
+
+/* BIGGER book icon */
+.book-img {
+  width: 70px;
+  height: 70px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.book-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+.book-card:hover .book-img {
+  transform: scale(1.05);
+}
+
+.book-title {
+  font-weight: 700;
+  color: #0f3940;
+  margin-bottom: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.book-author {
+  font-size: 12px;
+  color: #6b6b6b;
+}
+
+.book-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--orange);
+  margin-top: 6px;
+}
+
+/* =========================
+   Modal (if you use it)
+   ========================= */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  width: 460px;
+  max-width: 92%;
+  background: #fff;
+  padding: 18px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* =========================
+   Responsive
+   ========================= */
+@media (max-width: 1100px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .books-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .top-actions {
+    position: static;
+    margin-bottom: 10px;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 700px) {
+  .books-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .library-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+

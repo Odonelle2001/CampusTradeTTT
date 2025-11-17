@@ -1,98 +1,78 @@
 <?php
-session_start();
-if (!isset($vFirstName) && basename($_SERVER['SCRIPT_NAME']) === 'sellerpage.php') {
-    header('Location: /TTT_Pacman-1/seller_controller.php'); 
+// sellerpage.php
+// This file is meant to be included by Seller_Controller.php
+if (!isset($vFirstName) && basename(strtolower($_SERVER['SCRIPT_NAME'])) === 'sellerpage.php') {
+    header('Location: Seller_Controller.php');
     exit;
 }
-// Safe defaults if someone opens this file directly (controller normally sets these)
-$vImgSrc    = $vImgSrc    ?? '/TTT_Pacman-1/Images/ProfileIcon.png';
-$vFirstName = $vFirstName ?? '';
-$vAcad      = $vAcad      ?? '';
-$vSchool    = $vSchool    ?? '';
-$vMajor     = $vMajor     ?? '';
-$vCityState = $vCityState ?? '';
-$vEmail     = $vEmail     ?? '';
-$vPay       = $vPay       ?? '';
 
+$vImgSrc     = $vImgSrc     ?? 'Images/ProfileIcon.png';
+$vFirstName  = $vFirstName  ?? '';
+$vAcad       = $vAcad       ?? '';
+$vSchool     = $vSchool     ?? '';
+$vMajor      = $vMajor      ?? '';
+$vCityState  = $vCityState  ?? '';
+$vEmail      = $vEmail      ?? '';
+$vPay        = $vPay        ?? '';
+$postedBooks = $postedBooks ?? [];
 
 include('header.php');
 ?>
+
 <main>
   <div class="container">
     <div class="seller-page">
 
+      <!-- Top Actions -->
       <div class="top-actions">
         <button class="button" type="button" onclick="window.location.href='buyerpage.php'">Switch to Buyer</button>
-
-  <form method="post" action="logout.php" style="display:inline;">
-    <button class="button logout" type="submit">LogOut</button>
-  </form>
-</div> 
-    <div class="profile-panel">
-    <h2>Your Profile</h2>
-
-  <!-- Use POST for file upload -->
-  <form method="POST" enctype="multipart/form-data" action="Seller_Controller.php">
-    <div class="avatar-uploader">
-      <input id="avatarInput" name="avatar" type="file" accept="image/*" hidden>
-      <label for="avatarInput" class="avatar" aria-label="Upload profile picture">
-        <img id="avatarPreview" src="/TTT2CampusTrade/Images/ProfileIcon.png" alt="Profile picture">
-        <span class="avatar-icon">+</span>
-      </label>
-      <small>Click to upload</small>
-    </div>
-
-    <label></label>
-    <p>Name: <?= $vFirstName ?></p>
-   <!-- <input type="text" name="name" placeholder="Name" value="<?= $vFirstName ?>">-->
-
-    <label for="status"></label>
-    <p>Status: <?= $vAcad ?></p>
-    <!--
-    <select id="status" name="status">
-      <option <?= ($vAcad==='Student') ? 'selected' : '' ?>>Student</option>
-      <option <?= ($vAcad==='Alumni')  ? 'selected' : '' ?>>Alumni</option>
-    </select>-->
-
-    <label></label>
-    <p>School: <?= $vSchool ?></p>
-   <!-- <input type="text" name="school" placeholder="School" value="<?= $vSchool ?>">-->
-
-    <label></label>
-    <p>Major: <?= $vMajor ?></p>
-   <!-- <input type="text" name="major" placeholder="Major" value="<?= $vMajor ?>">-->
-
-    <label id = "location" ></label>
-    <p>Location: <?= $vCityState ?></p>
-   <!-- <input type="text" name="location" placeholder="State/City" value="<?= $vCityState ?>">-->
-
-    <label id= "email"></label>
-    <p>Email: <?= $vEmail ?></p>
-   <!-- <input type="email" name="email" placeholder="Email" value="<?= $vEmail ?>">-->
-
-    <label id ="payment" for="payment"></label>
-    <p>Preferred Payment: <?= $vEmail ?> </p>
-    <!--
-    <select id="payment" name="payment">
-      <option <?= ($vPay==='Venmo')   ? 'selected' : '' ?>>Venmo</option>
-      <option <?= ($vPay==='CashApp') ? 'selected' : '' ?>>CashApp</option>
-      <option <?= ($vPay==='PayPal')  ? 'selected' : '' ?>>PayPal</option>
-      <option <?= ($vPay==='Zelle')   ? 'selected' : '' ?>>Zelle</option>
-    </select>-->
-
-    <button class="button" type="submit" name="edit_profile" value="1">Edit</button>
-  </form>
-        <h3>Book Posted</h3>
-        <select name="postedBook">
-          <option>Select Book</option>
-        </select>
-        <form method="post" action="Seller_Controller.php">
-        <button class="button delete" type="submit">Delete Book</button>
+        <form method="post" action="logout.php" style="display:inline;">
+          <button class="button logout" type="submit">LogOut</button>
         </form>
-    </div>
+      </div> 
 
+      <!-- LEFT: Profile Panel -->
+      <div class="profile-panel">
+        <h2>Your Profile</h2>
 
-       
+        <!-- Profile Image Upload -->
+        <form method="POST" enctype="multipart/form-data" action="Seller_Controller.php">
+          <div class="avatar-uploader">
+            <input id="avatarInput" name="profileImage" type="file" accept="image/*" hidden>
+            <label for="avatarInput" class="avatar" aria-label="Upload profile picture">
+              <img id="avatarPreview"
+                   src="<?= htmlspecialchars($vImgSrc) ?>"
+                   alt="Profile picture">
+               <span class="avatar-icon">+</span>
+            </label>
+            <small>Click to upload</small>
+          </div>
+
+          <p>Name: <?= htmlspecialchars($vFirstName) ?></p>
+          <p>Status: <?= htmlspecialchars($vAcad) ?></p>
+          <p>School: <?= htmlspecialchars($vSchool) ?></p>
+          <p>Major: <?= htmlspecialchars($vMajor) ?></p>
+          <p>Location: <?= htmlspecialchars($vCityState) ?></p>
+          <p>Email: <?= htmlspecialchars($vEmail) ?></p>
+          <p>Preferred Payment: <?= htmlspecialchars($vPay) ?></p>
+
+          <button class="button" type="submit" name="edit_profile" value="1">Update Profile</button>
+        </form>
+
+        <!-- Posted Books -->
+        <h3>Books Posted</h3>
+        <form method="post" action="Seller_Controller.php">
+          <select name="postedBook">
+            <option value="">Select Book</option>
+            <?php foreach ($postedBooks as $b): ?>
+              <option value="<?= htmlspecialchars($b['id']) ?>">
+                <?= htmlspecialchars($b['title']) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+          <button class="button delete" type="submit" name="delete_book" value="1">Delete Book</button>
+        </form>
+      </div>
 
       <!-- RIGHT: Post a Book -->
       <div class="form-panel">
@@ -104,24 +84,23 @@ include('header.php');
             <label for="bookUpload" class="book-circle" aria-label="Upload book image">
               <span class="book-plus">+</span>
               <span class="book-hint">Book Image</span>
-              <img id="bookPreview" alt="Book image preview" hidden>
+              <img id="bookPreview" alt="Book image preview" hidden
+                   style="width:120px;height:120px;border-radius:10px;object-fit:cover;margin-top:6px;">
             </label>
           </div>
 
-          <input type="text" name="titleAuthor" placeholder="Book Title / Author">
+          <input type="text" name="titleAuthor" placeholder="Book Title / Author" required>
           <input type="text" name="isbn" placeholder="ISBN">
           <input type="number" step="0.01" name="price" placeholder="Price">
           <select name="condition">
-            <option>New</option>
-            <option>Used</option>
+            <option value="New">New</option>
+            <option value="Used">Used</option>
           </select>
-          <input type="text" name="courseDept" placeholder="Course Dept.">
-          <input type="email" name="contact" placeholder="Contact Info">
+          <input type="text" name="courseDept" placeholder="Course Dept. (e.g., CS101)">
+          <input type="text" name="contact" placeholder="Contact Info (email or phone)">
 
           <div class="button-group">
-            <button class="button" type="submit">Save</button>
-            <button class="button" type="submit">Edit</button>
-            <button class="button" type="submit">Post Book</button>
+            <button class="button" type="submit" name="post_book" value="1">Post Book</button>
           </div>
         </form>
       </div>
@@ -129,6 +108,85 @@ include('header.php');
     </div>
   </div>
 </main>
+
+<?php include('footer.php'); ?>
+
+<!-- ========= IMAGE PREVIEW SCRIPT ========= -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Profile avatar preview
+  const avatarInput = document.getElementById('avatarInput');
+  const avatarPreview = document.getElementById('avatarPreview');
+
+  if (avatarInput && avatarPreview) {
+    avatarInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        avatarPreview.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Book image preview
+  const bookInput = document.getElementById('bookUpload');
+  const bookPreview = document.getElementById('bookPreview');
+
+  if (bookInput && bookPreview) {
+    bookInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        bookPreview.src = ev.target.result;
+        bookPreview.hidden = false;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Profile avatar preview
+  const avatarInput = document.getElementById('avatarInput');
+  const avatarPreview = document.getElementById('avatarPreview');
+
+  if (avatarInput && avatarPreview) {
+    avatarInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        avatarPreview.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Book image preview
+  const bookInput   = document.getElementById('bookUpload');
+  const bookPreview = document.getElementById('bookPreview');
+
+  if (bookInput && bookPreview) {
+    bookInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        bookPreview.src = ev.target.result;
+        bookPreview.hidden = false;   // just show it under the +
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+    });
+
+</script>
+
 
 <?php include('footer.php'); ?>
 

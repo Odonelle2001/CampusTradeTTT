@@ -237,10 +237,14 @@ public function PaymentMeth(int $id): array {
 
       $sql_postbook = "INSERT INTO booklisting(image_path, title, isbn,price, book_state, course_id) VALUES(?, ?, ?, ?, ?, ?)";
       $stmt = $this->db->prepare($sql_postbook);
-      $smmt = bind_params("sssiss", $book_image,$title,$ISBN,$price,$book_status,$course_dept, $contacts);
+      $stmt -> bind_param("sssiss", $book_image,$title,$ISBN,$price,$book_status,$course_dept, $contacts);
       $stmt -> execute();
 
       return $stmt->insert_id; // >0 on success
+    }
+
+    public function UpdateProfileImage(){
+
     }
     }
 

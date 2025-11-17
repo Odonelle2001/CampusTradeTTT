@@ -220,6 +220,9 @@ body {
 .login-redirect a:hover {
   text-decoration: underline;
 }
+
+
+
 /* ===== Seller Page container (beige rectangle) ===== */
 .seller-page {
   position: relative;
@@ -227,7 +230,7 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 30px;
   background-color: #FFF3E0;
-  border: 4px solid #FFA500;
+  border: 10px solid #FFA500;
   border-radius: 16px;
   padding: 120px 50px 50px;           /* extra top space for top-actions */
   max-width: 1300px;                 /* bigger rectangle */
@@ -290,20 +293,27 @@ input, select {
   gap: 6px;
   margin-bottom: 16px;
 }
-
 .avatar {
   position: relative;
-  width: 96px;
-  height: 96px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: #FF6600;
   border: 2px solid #FFA500;
+  overflow: hidden;
+  cursor: pointer;
   display: grid;
   place-items: center;
-  cursor: pointer;
-  overflow: hidden;
+  background: #f9eedc;   /* softer background that matches card */
 }
-.avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.avatar img {
+  width: 110%;           /* a tiny zoom so edges are fully covered */
+  height: 110%;
+  object-fit: cover;
+  display: block;
+}
+
+
 .avatar-icon { position: absolute; font-size: 28px; color: #fff; pointer-events: none; opacity: .9; }
 .avatar-uploader small { color: #6b7280; font-size: 12px; }
 
@@ -311,31 +321,62 @@ input, select {
 .profile-panel h3 { margin-top: 14px; margin-bottom: 8px; }
 
 /* ===== Book image uploader (orange + circle) ===== */
+/* ===== Book image uploader (button + preview) ===== */
 .book-upload {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  margin-bottom: 90px;
+  margin-bottom: 24px;
 }
+
+/* label that wraps the + and text */
 .book-circle {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background-color: #FF6600;
-  color: #fff;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  font-size: 34px;
-  font-weight: bold;
+  gap: 4px;
   cursor: pointer;
-  transition: transform .2s ease;
-  border: 3px solid #FFA500;
 }
-.book-circle:hover { transform: scale(1.05); }
-.book-hint { font-size: 12px; margin-top: 6px; color: #333; }
+
+/* the + button itself */
+.book-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid #FF6600;
+  color: #FF6600;
+  font-size: 30px;
+  font-weight: 700;
+  background: #fff;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.book-plus:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 6px rgba(0,0,0,0.12);
+}
+
+/* little helper text */
+.book-hint {
+  font-size: 12px;
+  color: #333;
+}
+
+/* preview: simple rectangle under the button */
+#bookPreview {
+  margin-top: 6px;
+  width: 140px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
+}
+
 
 
 /* Home Page Styling*/
