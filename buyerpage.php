@@ -2,13 +2,48 @@
 session_start();
 include('header.php');
 
-// connect to DB (mysqli)
+if (!isset($_SESSION['user_id'])) {
+    header('Location: LoginPage.php');
+    exit;
+}
+
 $db = require __DIR__ . '/Database.php';
 
-/*
- * 1) Load all active book listings with seller info
- *    We use JOIN to get seller name from accounts.
- */
+$buyerId = (int) $_SESSION['user_id'];
+
+/* ---- 1) Load profile for the logged-in user ---- */
+$profileSql = "
+    SELECT 
+        a.first_name,
+        a.last_name,
+        a.school_name,
+        a.major,
+        a.acad_role,
+        a.city_state,
+        a.email,
+        u.profile_image,
+        u.preferred_pay
+    FROM accounts a
+    LEFT JOIN userprofile u ON u.user_id = a.id
+    WHERE a.id = ?
+";
+$stmt = $db->prepare($profileSql);
+$stmt->bind_param("i", $buyerId);
+$stmt->execute();
+$res = $stmt->get_result();
+$profile = $res->fetch_assoc() ?: [];
+$stmt->close();
+
+$vImgSrc    = !empty($profile['profile_image']) ? $profile['profile_image'] : 'Images/ProfileIcon.png';
+$vFullName  = trim(($profile['first_name'] ?? '') . ' ' . ($profile['last_name'] ?? ''));
+$vAcad      = $profile['acad_role']   ?? '';
+$vSchool    = $profile['school_name'] ?? '';
+$vMajor     = $profile['major']       ?? '';
+$vCityState = $profile['city_state']  ?? '';
+$vEmail     = $profile['email']       ?? '';
+$vPay       = $profile['preferred_pay'] ?? '';
+
+/* ---- 2) Load books (this is your old query, just with image_path added) ---- */
 $books = [];
 
 $sql = "
@@ -26,7 +61,6 @@ $sql = "
     WHERE b.status = 'Active'
     ORDER BY b.created_at DESC
 ";
-
 $result = $db->query($sql);
 if ($result) {
     while ($row = $result->fetch_assoc()) {
@@ -34,9 +68,7 @@ if ($result) {
     }
 }
 
-/*
- * 2) Build unique department list from course_id (ex: CS101, MATH205)
- */
+/* ---- 3) Build department list ---- */
 $depts = [];
 foreach ($books as $b) {
     $d = trim($b['course_id'] ?? '');
@@ -47,6 +79,7 @@ foreach ($books as $b) {
 sort($depts);
 ?>
 <link rel="stylesheet" href="CSS/BuyerPage.css">
+
 
 <main class="buyer-page">
   <div class="container-card">
@@ -59,36 +92,36 @@ sort($depts);
     <div class="content-grid">
       <!-- LEFT: Profile -->
       <section class="profile-card">
-        <h2>Your Profile</h2>
-        <div class="profile-inner">
+  <h2>Your Profile</h2>
+  <div class="profile-inner">
 
-          <div class="avatar-uploader">
-            <label class="avatar">
-              <img src="images/avatar-placeholder.png" alt="avatar">
-              <span class="avatar-text">Click to upload</span>
-            </label>
-          </div>
+    <div class="avatar-uploader">
+      <label class="avatar">
+        <img src="<?= htmlspecialchars($vImgSrc) ?>" alt="Profile picture">
+        <span class="avatar-text">Click to upload</span>
+      </label>
+    </div>
 
-          <ul class="profile-info">
-            <li><strong>Name:</strong></li>
-            <li><strong>Status:</strong></li>
-            <li><strong>School:</strong></li>
-            <li><strong>Major:</strong></li>
-            <li><strong>Location:</strong></li>
-            <li><strong>Email:</strong></li>
-            <li><strong>Preferred Payment:</strong></li>
-          </ul>
+    <ul class="profile-info">
+      <li><strong>Name:</strong> <?= htmlspecialchars($vFullName) ?></li>
+      <li><strong>Status:</strong> <?= htmlspecialchars($vAcad) ?></li>
+      <li><strong>School:</strong> <?= htmlspecialchars($vSchool) ?></li>
+      <li><strong>Major:</strong> <?= htmlspecialchars($vMajor) ?></li>
+      <li><strong>Location:</strong> <?= htmlspecialchars($vCityState) ?></li>
+      <li><strong>Email:</strong> <?= htmlspecialchars($vEmail) ?></li>
+      <li><strong>Preferred Payment:</strong> <?= htmlspecialchars($vPay ?: 'Not set') ?></li>
+    </ul>
 
-          <!-- Later we can build this page -->
-          <button
-            type="button"
-            class="btn update-profile-btn"
-            onclick="window.location.href='EditProfile.php';"
-          >
-            Update Profile
-          </button>
-        </div>
-      </section>
+    <button
+      type="button"
+      class="btn update-profile-btn"
+      onclick="window.location.href='Seller_Controller.php';"
+    >
+      Update Profile
+    </button>
+  </div>
+</section>
+
 
       <!-- RIGHT: Search + Filter + Library grid -->
       <section class="library-card">

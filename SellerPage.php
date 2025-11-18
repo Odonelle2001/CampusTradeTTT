@@ -36,28 +36,33 @@ include('header.php');
         <h2>Your Profile</h2>
 
         <!-- Profile Image Upload -->
-        <form method="POST" enctype="multipart/form-data" action="Seller_Controller.php">
-          <div class="avatar-uploader">
-            <input id="avatarInput" name="profileImage" type="file" accept="image/*" hidden>
-            <label for="avatarInput" class="avatar" aria-label="Upload profile picture">
-              <img id="avatarPreview"
-                   src="<?= htmlspecialchars($vImgSrc) ?>"
-                   alt="Profile picture">
-               <span class="avatar-icon">+</span>
-            </label>
-            <small>Click to upload</small>
-          </div>
+        <form id="profileForm" method="POST" enctype="multipart/form-data" action="Seller_Controller.php">
+  <div class="avatar-uploader">
+    <input id="avatarInput" name="profileImage" type="file" accept="image/*" hidden>
+    <label for="avatarInput" class="avatar" aria-label="Upload profile picture">
+      <img id="avatarPreview" src="<?= htmlspecialchars($vImgSrc) ?>" alt="Profile picture">
+      <span class="avatar-icon">+</span>
+    </label>
+    <small>
+      Step 1: Click the circle to choose a photo.  
+      Step 2: It will be saved automatically.
+    </small>
+  </div>
 
-          <p>Name: <?= htmlspecialchars($vFirstName) ?></p>
-          <p>Status: <?= htmlspecialchars($vAcad) ?></p>
-          <p>School: <?= htmlspecialchars($vSchool) ?></p>
-          <p>Major: <?= htmlspecialchars($vMajor) ?></p>
-          <p>Location: <?= htmlspecialchars($vCityState) ?></p>
-          <p>Email: <?= htmlspecialchars($vEmail) ?></p>
-          <p>Preferred Payment: <?= htmlspecialchars($vPay) ?></p>
+  <p>Name: <?= htmlspecialchars($vFirstName) ?></p>
+  <p>Status: <?= htmlspecialchars($vAcad) ?></p>
+  <p>School: <?= htmlspecialchars($vSchool) ?></p>
+  <p>Major: <?= htmlspecialchars($vMajor) ?></p>
+  <p>Location: <?= htmlspecialchars($vCityState) ?></p>
+  <p>Email: <?= htmlspecialchars($vEmail) ?></p>
+  <p>Preferred Payment: <?= htmlspecialchars($vPay) ?></p>
 
-          <button class="button" type="submit" name="edit_profile" value="1">Update Profile</button>
-        </form>
+  <!-- hidden flag so the controller knows this is a profile update -->
+  <input type="hidden" name="edit_profile" value="1">
+
+  <button class="button" type="submit">Update Profile</button>
+</form>
+
 
         <!-- Posted Books -->
         <h3>Books Posted</h3>
@@ -78,32 +83,32 @@ include('header.php');
       <div class="form-panel">
         <h2>Post a Book</h2>
 
-        <form method="post" enctype="multipart/form-data" action="Seller_Controller.php">
-          <div class="book-upload">
-            <input id="bookUpload" name="bookImage" type="file" accept="image/*" hidden>
-            <label for="bookUpload" class="book-circle" aria-label="Upload book image">
-              <span class="book-plus">+</span>
-              <span class="book-hint">Book Image</span>
-              <img id="bookPreview" alt="Book image preview" hidden
-                   style="width:120px;height:120px;border-radius:10px;object-fit:cover;margin-top:6px;">
-            </label>
-          </div>
+    <form method="post" enctype="multipart/form-data" action="Seller_Controller.php">
+  <div class="book-upload">
+    
+    <input id="bookUpload" name="bookImage" type="file" accept="image/*" hidden>
+    <label for="bookUpload" class="book-circle" aria-label="Upload book image">
+      <span class="book-plus">+</span>
+      <span class="book-hint">Book Image</span>
+      <img id="bookPreview" alt="Book image preview" hidden>
+    </label>
+  </div>
 
-          <input type="text" name="titleAuthor" placeholder="Book Title / Author" required>
-          <input type="text" name="isbn" placeholder="ISBN">
-          <input type="number" step="0.01" name="price" placeholder="Price">
-          <select name="condition">
-            <option value="New">New</option>
-            <option value="Used">Used</option>
-          </select>
-          <input type="text" name="courseDept" placeholder="Course Dept. (e.g., CS101)">
-          <input type="text" name="contact" placeholder="Contact Info (email or phone)">
+  <input type="text" name="titleAuthor" placeholder="Book Title / Author" required>
+  <input type="text" name="isbn" placeholder="ISBN">
+  <input type="number" step="0.01" name="price" placeholder="Price">
+  <select name="condition">
+    <option value="New">New</option>
+    <option value="Used">Used</option>
+  </select>
+  <input type="text" name="courseDept" placeholder="Course Dept.">
+  <input type="email" name="contact" placeholder="Contact Info">
 
-          <div class="button-group">
-            <button class="button" type="submit" name="post_book" value="1">Post Book</button>
-          </div>
-        </form>
-      </div>
+  <div class="button-group">
+    <button class="button" type="submit" name="post_book" value="1">Post Book</button>
+  </div>
+</form>
+
 
     </div>
   </div>
@@ -185,6 +190,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Profile avatar preview + auto-save
+  const avatarInput   = document.getElementById('avatarInput');
+  const avatarPreview = document.getElementById('avatarPreview');
+  const profileForm   = document.getElementById('profileForm');
+
+  if (avatarInput && avatarPreview && profileForm) {
+    avatarInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Show preview immediately
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        avatarPreview.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      // Auto-submit form so image is saved to DB
+      setTimeout(() => {
+        profileForm.submit();
+      }, 300); // tiny delay so preview appears smoothly
+    });
+  }
+});
 </script>
 
 

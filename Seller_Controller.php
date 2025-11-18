@@ -1,4 +1,4 @@
- <?php
+<?php
 // Seller_Controller.php
 session_start();
 
@@ -6,17 +6,19 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $db = require __DIR__ . '/Database.php';
 
-// Make sure user is logged in
-if (empty($_SESSION['user_id'])) {
-    header('Location: LoginPage.php');
+// =========================
+//  Require login
+// =========================
+if (!isset($_SESSION['user_id'])) {
+    header("Location: LoginPage.php");
     exit;
 }
 
-$sellerId = (int)$_SESSION['user_id'];
+$sellerId = (int) $_SESSION['user_id'];
 
-/* ==========================
-   1) LOAD PROFILE DATA
-   ========================== */
+/* ============================================
+   1) LOAD PROFILE DATA (accounts + userprofile)
+   ============================================ */
 
 $profileSql = "
     SELECT 
@@ -37,7 +39,7 @@ $profileSql = "
 $stmt = $db->prepare($profileSql);
 $stmt->bind_param("i", $sellerId);
 $stmt->execute();
-$res     = $stmt->get_result();
+$res = $stmt->get_result();
 $profile = $res->fetch_assoc() ?: [];
 $stmt->close();
 
@@ -50,9 +52,9 @@ $vCityState = $profile['city_state']  ?? '';
 $vEmail     = $profile['email']       ?? '';
 $vPay       = $profile['preferred_pay'] ?? '';
 
-/* ==========================
-   2) HANDLE FORM POSTS
-   ========================== */
+/* ============================================
+   2) HANDLE POST REQUESTS
+   ============================================ */
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -71,35 +73,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // price column is UNSIGNED INT
-        $price = (int) round((float) $priceInput);
+        // price is UNSIGNED INT in DB
+        $price = (int) round((float)$priceInput);
         if ($price < 0) $price = 0;
 
         $bookState = ($condition === 'Used') ? 'Used' : 'New';
         $status    = 'Active';
 
-        // Optional image upload for book
+        // ---------- BOOK IMAGE UPLOAD ----------
         $imagePath = null;
-        if (!empty($_FILES['bookImage']['name']) && $_FILES['bookImage']['error'] === UPLOAD_ERR_OK) {
 
-            // Filesystem folder
-            $uploadDir = __DIR__ . '/Uploads/Books/';
-            // Path to store in DB / use in <img src="">
-            $webPrefix = 'Uploads/Books/';
+        if (!empty($_FILES['bookImage']['name'])) {
 
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
+            $file  = $_FILES['bookImage'];
+            $error = $file['error'];
 
-            $ext      = pathinfo($_FILES['bookImage']['name'], PATHINFO_EXTENSION);
-            $fileName = 'book_' . $sellerId . '_' . time() . '.' . $ext;
-            $fullPath = $uploadDir . $fileName;
+            if ($error === UPLOAD_ERR_OK && $file['size'] > 0) {
 
-            if (move_uploaded_file($_FILES['bookImage']['tmp_name'], $fullPath)) {
-                $imagePath = $webPrefix . $fileName;
+                // 🔹 Absolute path to Books folder (must match your real path)
+                $uploadDir = 'C:/Xampp/htdocs/TTT4CampusTrade/TTT_Pacman/Uploads/Books/';
+
+                if (!is_dir($uploadDir)) {
+                    die('Upload folder NOT found for books: ' . $uploadDir);
+                }
+
+                // Path stored in DB / used in <img src="...">
+                $webPrefix = 'Uploads/Books/';
+
+                $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+                if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                    $ext = 'jpg';
+                }
+
+                $fileName = 'book_' . $sellerId . '_' . time() . '_' . mt_rand(1000, 9999) . '.' . $ext;
+                $fullPath = $uploadDir . $fileName;
+
+                if (move_uploaded_file($file['tmp_name'], $fullPath)) {
+                    $imagePath = $webPrefix . $fileName; // relative path for src + DB
+                } else {
+                    die('move_uploaded_file failed for book image. Tried: ' . $fullPath);
+                }
+            } elseif ($error !== UPLOAD_ERR_NO_FILE) {
+                die('Upload error for bookImage. Error code: ' . $error);
             }
         }
 
+        // ---------- INSERT BOOK ----------
         $sql = "
             INSERT INTO booklistings
                 (seller_id, title, isbn, image_path, price, book_state, status, course_id, contact_info)
@@ -127,44 +146,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    /* ---- B) UPDATE PROFILE IMAGE ---- */
-    if (isset($_POST['edit_profile'])) {
+   /* ---- B) UPDATE PROFILE IMAGE ---- */
+if (isset($_POST['edit_profile'])) {
 
-        $newImagePath = null;
-        if (!empty($_FILES['profileImage']['name']) && $_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
+    $newImagePath = null;
 
-            $uploadDir = __DIR__ . '/Uploads/avatars/';
-            $webPrefix = 'Uploads/avatars/';
+    if (!empty($_FILES['profileImage']['name'])) {
+        $file  = $_FILES['profileImage'];
+        $error = $file['error'];
+
+        if ($error === UPLOAD_ERR_OK && $file['size'] > 0) {
+
+            // 🔹 ABSOLUTE PATH on disk – must match your real folder
+            $uploadDir = 'C:/Xampp/htdocs/TTT4CampusTrade/TTT_Pacman/Uploads/Profiles/';
+            $webPrefix = 'Uploads/Profiles/';   // what we store in DB / use in <img src>
 
             if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
+                die('Upload folder NOT found for profiles: ' . $uploadDir);
             }
 
-            $ext      = pathinfo($_FILES['profileImage']['name'], PATHINFO_EXTENSION);
-            $fileName = 'avatar_' . $sellerId . '_' . time() . '.' . $ext;
+            // extension
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if (!in_array($ext, ['jpg','jpeg','png','gif','webp'])) {
+                $ext = 'jpg';
+            }
+
+            $fileName = 'avatar_' . $sellerId . '_' . time() . '_' . mt_rand(1000,9999) . '.' . $ext;
             $fullPath = $uploadDir . $fileName;
 
-            if (move_uploaded_file($_FILES['profileImage']['tmp_name'], $fullPath)) {
+            if (move_uploaded_file($file['tmp_name'], $fullPath)) {
+                // this goes in DB
                 $newImagePath = $webPrefix . $fileName;
+            } else {
+                die('move_uploaded_file failed for profile image. Tried: ' . $fullPath);
             }
+        } elseif ($error !== UPLOAD_ERR_NO_FILE) {
+            die('Upload error for profileImage. Error code: ' . $error);
         }
-
-        if ($newImagePath !== null) {
-            $sql = "
-                INSERT INTO userprofile (user_id, profile_image, preferred_pay)
-                VALUES (?, ?, ?)
-                ON DUPLICATE KEY UPDATE profile_image = VALUES(profile_image)
-            ";
-            $prefPay = $vPay ?: 'Cash';
-            $stmt = $db->prepare($sql);
-            $stmt->bind_param("iss", $sellerId, $newImagePath, $prefPay);
-            $stmt->execute();
-            $stmt->close();
-        }
-
-        header('Location: Seller_Controller.php?profile=updated');
-        exit;
     }
+
+    if ($newImagePath !== null) {
+        // if row exists -> update, otherwise insert
+        $sql = "
+            INSERT INTO userprofile (user_id, profile_image, preferred_pay)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE profile_image = VALUES(profile_image)
+        ";
+
+        $prefPay = $vPay ?: 'Cash';
+
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param("iss", $sellerId, $newImagePath, $prefPay);
+        $stmt->execute();
+        $stmt->close();
+
+        // refresh current page variables
+        $vImgSrc = $newImagePath;
+    }
+
+    header('Location: Seller_Controller.php?profile=updated');
+    exit;
+}
+
 
     /* ---- C) DELETE BOOK ---- */
     if (isset($_POST['delete_book'])) {
@@ -183,9 +226,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-/* ==========================
-   3) LOAD SELLER'S BOOKS
-   ========================== */
+/* ============================================
+   3) LOAD SELLER'S BOOK LIST (for dropdown)
+   ============================================ */
+
 $postedBooks = [];
 $sql = "SELECT id, title FROM booklistings WHERE seller_id = ? ORDER BY created_at DESC";
 $stmt = $db->prepare($sql);
@@ -195,8 +239,9 @@ $res = $stmt->get_result();
 $postedBooks = $res->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-/* ==========================
-   4) SHOW SELLER PAGE VIEW
-   ========================== */
+/* ============================================
+   4) RENDER SELLER PAGE
+   ============================================ */
 include 'sellerpage.php';
+
 
