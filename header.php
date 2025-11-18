@@ -18,7 +18,6 @@
     <div class="logo"> <img src="Images/CampusTradeLogo.png" alt="CampusTrade Logo" width="120">
   </div>
     <nav>
-      <a href="BuyButtonPage.php" style="font-size:12px;">ToBuyBook</a>
       <a href="HomePage.php">Home</a>
       <a href="AboutPage.php">About</a>
       <a href="SignUpPage.php">Sign Up</a>

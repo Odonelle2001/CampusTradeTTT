@@ -30,7 +30,7 @@ $profileSql = "
 $stmt = $db->prepare($profileSql);
 $stmt->bind_param("i", $buyerId);
 $stmt->execute();
-$res = $stmt->get_result();
+$res     = $stmt->get_result();
 $profile = $res->fetch_assoc() ?: [];
 $stmt->close();
 
@@ -43,7 +43,7 @@ $vCityState = $profile['city_state']  ?? '';
 $vEmail     = $profile['email']       ?? '';
 $vPay       = $profile['preferred_pay'] ?? '';
 
-/* ---- 2) Load books (this is your old query, just with image_path added) ---- */
+/* ---- 2) Load books ---- */
 $books = [];
 
 $sql = "
@@ -72,14 +72,13 @@ if ($result) {
 $depts = [];
 foreach ($books as $b) {
     $d = trim($b['course_id'] ?? '');
-    if ($d !== '' && !in_array($d, $depts)) {
+    if ($d !== '' && !in_array($d, $depts, true)) {
         $depts[] = $d;
     }
 }
 sort($depts);
 ?>
 <link rel="stylesheet" href="CSS/BuyerPage.css">
-
 
 <main class="buyer-page">
   <div class="container-card">
@@ -92,36 +91,34 @@ sort($depts);
     <div class="content-grid">
       <!-- LEFT: Profile -->
       <section class="profile-card">
-  <h2>Your Profile</h2>
-  <div class="profile-inner">
+        <h2>Your Profile</h2>
+        <div class="profile-inner">
+          <div class="avatar-uploader">
+            <label class="avatar">
+              <img src="<?= htmlspecialchars($vImgSrc) ?>" alt="Profile picture">
+              <span class="avatar-text">Click to upload</span>
+            </label>
+          </div>
 
-    <div class="avatar-uploader">
-      <label class="avatar">
-        <img src="<?= htmlspecialchars($vImgSrc) ?>" alt="Profile picture">
-        <span class="avatar-text">Click to upload</span>
-      </label>
-    </div>
+          <ul class="profile-info">
+            <li><strong>Name:</strong> <?= htmlspecialchars($vFullName) ?></li>
+            <li><strong>Status:</strong> <?= htmlspecialchars($vAcad) ?></li>
+            <li><strong>School:</strong> <?= htmlspecialchars($vSchool) ?></li>
+            <li><strong>Major:</strong> <?= htmlspecialchars($vMajor) ?></li>
+            <li><strong>Location:</strong> <?= htmlspecialchars($vCityState) ?></li>
+            <li><strong>Email:</strong> <?= htmlspecialchars($vEmail) ?></li>
+            <li><strong>Preferred Payment:</strong> <?= htmlspecialchars($vPay ?: 'Not set') ?></li>
+          </ul>
 
-    <ul class="profile-info">
-      <li><strong>Name:</strong> <?= htmlspecialchars($vFullName) ?></li>
-      <li><strong>Status:</strong> <?= htmlspecialchars($vAcad) ?></li>
-      <li><strong>School:</strong> <?= htmlspecialchars($vSchool) ?></li>
-      <li><strong>Major:</strong> <?= htmlspecialchars($vMajor) ?></li>
-      <li><strong>Location:</strong> <?= htmlspecialchars($vCityState) ?></li>
-      <li><strong>Email:</strong> <?= htmlspecialchars($vEmail) ?></li>
-      <li><strong>Preferred Payment:</strong> <?= htmlspecialchars($vPay ?: 'Not set') ?></li>
-    </ul>
-
-    <button
-      type="button"
-      class="btn update-profile-btn"
-      onclick="window.location.href='Seller_Controller.php';"
-    >
-      Update Profile
-    </button>
-  </div>
-</section>
-
+          <button
+            type="button"
+            class="btn update-profile-btn"
+            onclick="window.location.href='Seller_Controller.php';"
+          >
+            Update Profile
+          </button>
+        </div>
+      </section>
 
       <!-- RIGHT: Search + Filter + Library grid -->
       <section class="library-card">
@@ -133,57 +130,69 @@ sort($depts);
 
           <select id="filterDept">
             <option value="">All Courses</option>
-            <?php foreach($depts as $dept): ?>
-              <option value="<?php echo htmlspecialchars($dept); ?>">
-                <?php echo htmlspecialchars($dept); ?>
+            <?php foreach ($depts as $dept): ?>
+              <option value="<?= htmlspecialchars($dept) ?>">
+                <?= htmlspecialchars($dept) ?>
               </option>
             <?php endforeach; ?>
           </select>
         </div>
 
         <div class="books-grid-wrapper">
-          <div id="booksGrid" class="books-grid">
+          <!-- use same grid style as home page -->
+          <div id="booksGrid" class="books-grid home-book-list">
             <?php if (empty($books)): ?>
               <p style="grid-column:1 / -1; text-align:center; color:#555;">
                 No books posted yet.
               </p>
             <?php else: ?>
-              <?php foreach($books as $b): ?>
-                <div class="book-card"
-                     data-id="<?php echo htmlspecialchars($b['id']); ?>"
-                     data-title="<?php echo htmlspecialchars(strtolower($b['title'] ?? '')); ?>"
-                     data-author="<?php echo htmlspecialchars(strtolower(($b['first_name'] ?? '').' '.($b['last_name'] ?? ''))); ?>"
-                     data-dept="<?php echo htmlspecialchars($b['course_id'] ?? ''); ?>">
-
-                  <div class="book-img">
-  <?php if (!empty($b['image_path'])): ?>
-    <img
-      src="<?php echo htmlspecialchars($b['image_path']); ?>"
-      alt="Book cover for <?php echo htmlspecialchars($b['title']); ?>">
-  <?php else: ?>
-    <!-- fallback icon when no image -->
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-         xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect x="3" y="4" width="14" height="16" rx="1.5" fill="#F18305"/>
-      <rect x="6" y="7" width="8" height="2" fill="#fff" opacity="0.35"/>
-    </svg>
-  <?php endif; ?>
-</div>
-
-
-                  <div class="book-title">
-                    <?php echo htmlspecialchars($b['title'] ?? ''); ?>
+              <?php foreach ($books as $b): ?>
+                <?php
+                  $id        = (int) ($b['id'] ?? 0);
+                  $title     = $b['title'] ?? '';
+                  $course    = $b['course_id'] ?? '';
+                  $price     = isset($b['price']) ? (float)$b['price'] : 0;
+                  $sellerName= trim(($b['first_name'] ?? '') . ' ' . ($b['last_name'] ?? ''));
+                ?>
+                <a
+                  class="book-card home-book-card"
+                  href="BuyButtonPage.php?id=<?= $id ?>"
+                  data-id="<?= $id ?>"
+                  data-title="<?= htmlspecialchars(strtolower($title)) ?>"
+                  data-author="<?= htmlspecialchars(strtolower($sellerName)) ?>"
+                  data-dept="<?= htmlspecialchars($course) ?>"
+                >
+                  <div class="home-book-cover-wrapper">
+                    <?php if (!empty($b['image_path'])): ?>
+                      <img
+                        src="<?= htmlspecialchars($b['image_path']) ?>"
+                        alt="Book cover for <?= htmlspecialchars($title) ?>"
+                        class="home-book-cover"
+                      >
+                    <?php else: ?>
+                      <div class="home-book-cover home-placeholder">📚</div>
+                    <?php endif; ?>
                   </div>
-                  <div class="book-author">
-                    <?php echo htmlspecialchars($b['course_id'] ?? ''); ?>
+
+                  <div class="home-book-info">
+                    <div class="home-book-title" title="<?= htmlspecialchars($title) ?>">
+                      <?= htmlspecialchars($title) ?>
+                    </div>
+
+                    <?php if ($course !== ''): ?>
+                      <div class="home-book-course">
+                        <?= htmlspecialchars($course) ?>
+                      </div>
+                    <?php endif; ?>
+
+                    <div class="home-book-price">
+                      $<?= number_format($price, 2) ?>
+                    </div>
                   </div>
-                  <div class="book-price">
-                    $<?php echo htmlspecialchars($b['price'] ?? '0'); ?>
-                  </div>
-                </div><!-- /.book-card -->
+                </a>
               <?php endforeach; ?>
             <?php endif; ?>
-          </div><!-- /.books-grid -->
+          </div><!-- /#booksGrid -->
         </div><!-- /.books-grid-wrapper -->
       </section><!-- /.library-card -->
     </div><!-- /.content-grid -->
@@ -201,9 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const dept = deptSelect.value;
 
     cards.forEach(card => {
-      const title = card.dataset.title || '';
-      const author = card.dataset.author || '';
-      const cardDept = card.dataset.dept || '';
+      const title   = card.dataset.title  || '';
+      const author  = card.dataset.author || '';
+      const cardDept= card.dataset.dept   || '';
 
       const matchesSearch = !q || title.includes(q) || author.includes(q);
       const matchesDept   = !dept || cardDept === dept;
@@ -218,15 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (deptSelect) {
     deptSelect.addEventListener('change', applyFilters);
   }
-
-  // make book cards clickable -> BuyButtonPage.php?id=...
-  cards.forEach(card => {
-    card.addEventListener('click', () => {
-      const id = card.dataset.id;
-      if (!id) return;
-      window.location.href = 'BuyButtonPage.php?id=' + encodeURIComponent(id);
-    });
-  });
+  // cards are <a href="BuyButtonPage.php?id=..."> now, so no extra click handler needed
 });
 </script>
+
 <?php include('footer.php'); ?>

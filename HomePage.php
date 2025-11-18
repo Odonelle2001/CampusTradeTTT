@@ -1,5 +1,35 @@
 <?php
 include('header.php');
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+// connect to DB
+$db = require __DIR__ . '/Database.php';
+
+// Load 12 most recent active books
+$featuredBooks = [];
+
+$sql = "
+    SELECT 
+        b.id,
+        b.title,
+        b.price,
+        b.course_id,
+        b.image_path
+    FROM booklistings b
+    WHERE b.status = 'Active'
+    ORDER BY b.created_at DESC
+    LIMIT 16
+";
+$result = $db->query($sql);
+
+while ($row = $result->fetch_assoc()) {
+    $featuredBooks[] = $row;
+}
+// decide where Browse All Books should go
+$browseHref = isset($_SESSION['user_id'])
+    ? 'buyerpage.php'
+    : 'LoginPage.php';
 ?>
 
 <link rel="stylesheet" href="CSS/HomePage.css">
@@ -59,63 +89,46 @@ include('header.php');
     </div>
   </div>
 
-  <!-- Featured Books -->
+   <!-- Featured Books -->
   <div class="books-grid">
     <h3>Featured Books</h3>
-    <p class="subtitle">Recently listed textbooks from students across MinnState campuses</p>
-    <div class="book-items">
-      <div class="book-item" onclick="window.location.href='BuyButtonPage.php'">
-        <div class="book-spine"></div>
-        <div class="book-placeholder"></div>
-        <div class="bookmark"></div>
-      </div>
-      <div class="book-item" onclick="window.location.href='BuyButtonPage.php'">
-        <div class="book-spine"></div>
-        <div class="book-placeholder"></div>
-        <div class="bookmark"></div>
-      </div>
-      <div class="book-item" onclick="window.location.href='BuyButtonPage.php'">
-        <div class="book-spine"></div>
-        <div class="book-placeholder"></div>
-        <div class="bookmark"></div>
-      </div>
-      <div class="book-item" onclick="window.location.href='BuyButtonPage.php'">
-        <div class="book-spine"></div>
-        <div class="book-placeholder"></div>
-        <div class="bookmark"></div>
-      </div>
-      <div class="book-item" onclick="window.location.href='BuyButtonPage.php'">
-        <div class="book-spine"></div>
-        <div class="book-placeholder"></div>
-        <div class="bookmark"></div>
-      </div>
-      <div class="book-item" onclick="window.location.href='BuyButtonPage.php'">
-        <div class="book-spine"></div>
-        <div class="book-placeholder"></div>
-        <div class="bookmark"></div>
-      </div>
-      <div class="book-item" onclick="window.location.href='BuyButtonPage.php'">
-        <div class="book-spine"></div>
-        <div class="book-placeholder"></div>
-        <div class="bookmark"></div>
-      </div>
-      <div class="book-item" onclick="window.location.href='BuyButtonPage.php'">
-        <div class="book-spine"></div>
-        <div class="book-placeholder"></div>
-        <div class="bookmark"></div>
-      </div>
-      <div class="book-item" onclick="window.location.href='BuyButtonPage.php'">
-        <div class="book-spine"></div>
-        <div class="book-placeholder"></div>
-        <div class="bookmark"></div>
-      </div>
-    </div>
-    <div class="browse-more">
-      <button class="browse-btn" onclick="window.location.href='buyerpage.php'">Browse All Books</button>
-    </div>
-  </div>
-</div>
+    
 
-<?php
-include('footer.php');
-?>
+    <div class="home-book-list">
+      <?php foreach ($featuredBooks as $b): ?>
+        <?php
+          $bookId  = (int)$b['id'];
+          $bookUrl = "BuyButtonPage.php?id={$bookId}";  // keep your login logic elsewhere
+        ?>
+
+        <a class="home-book-card" href="<?= $bookUrl ?>">
+          <div class="home-book-cover-wrapper">
+            <?php if (!empty($b['image_path'])): ?>
+              <img
+                src="<?= htmlspecialchars($b['image_path']) ?>"
+                alt="Book cover for <?= htmlspecialchars($b['title']) ?>"
+                class="home-book-cover"
+              >
+            <?php else: ?>
+              <div class="home-book-cover home-placeholder">📚</div>
+            <?php endif; ?>
+          </div>
+
+          <div class="home-book-info">
+            <div class="home-book-title">
+              <?= htmlspecialchars($b['title']) ?>
+            </div>
+            <div class="home-book-price">
+              $<?= number_format((float)$b['price'], 2) ?>
+            </div>
+          </div>
+        </a>
+      <?php endforeach; ?>
+    </div>  <!-- end .home-book-list -->
+  </div>    <!-- end .books-grid -->
+</div>      <!-- end .content-section -->
+
+<?php include('footer.php'); ?>
+
+
+<?php include('footer.php'); ?>
