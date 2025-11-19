@@ -246,6 +246,54 @@ public function PaymentMeth(int $id): array {
     public function UpdateProfileImage(){
 
     }
+          // Fetch one book row by id 
+public function GetBookId(int $id, int $sellerId) {
+    $sql = "SELECT * FROM booklistings WHERE id = ? AND seller_id = ? LIMIT 1";
+
+    $stmt = $this->db->prepare($sql);
+    if (!$stmt) {
+        throw new RuntimeException('Database error (prepare GetBookId): ' . $this->db->error);
+    }
+
+    $stmt->bind_param("ii", $id, $sellerId);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    return $result->fetch_assoc();  // assoc array or null
+}
+
+public function UpdateBook(array $Book_info, int $sellerId) {
+    $id         = (int)$Book_info['id'];
+    $title      = $Book_info['titleAuthor'];            
+    $isbn       = $Book_info['isbn'];                 
+    $priceInt   = (int) round((float)$Book_info['price']); 
+    $bookState  = ($Book_info['condition'] === 'Used') ? 'Used' : 'New';  
+    $courseDept = $Book_info['courseDept'];            
+    $contact    = $Book_info['contact'];              
+
+    $sql_update = " UPDATE booklistings SET title = ?, isbn = ?, price = ?, book_state = ?, course_id = ?, contact_info = ?
+                    WHERE id = ? AND seller_id = ?
+                    LIMIT 1";
+
+    $stmt = $this->db->prepare($sql_update);
+    if (!$stmt) {
+        throw new RuntimeException('Database error (prepare UpdateBook): ' . $this->db->error);
+    }
+
+    // s = string, i = integer
+    if (!$stmt->bind_param(
+        "ssisssii",$title,$isbn,$priceInt,$bookState,$courseDept,$contact,$id,$sellerId
+    )) {
+        throw new RuntimeException('Database error (bind_param UpdateBook): ' . $stmt->error);
+    }
+
+    if (!$stmt->execute()) {
+        throw new RuntimeException('Database error (execute UpdateBook): ' . $stmt->error);
+    }
+
+    // true if row actually changed
+    return $stmt->affected_rows > 0;
+}
     }
 
     

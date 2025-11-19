@@ -6,6 +6,11 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $db = require __DIR__ . '/Database.php';
 
+require __DIR__ . '/UserModel.php';
+
+
+$userModel = new UserModel($db);
+
 // =========================
 //  Require login
 // =========================
@@ -91,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($error === UPLOAD_ERR_OK && $file['size'] > 0) {
 
                 // 🔹 Absolute path to Books folder (must match your real path)
-                $uploadDir = 'C:/Xampp/htdocs/TTT4CampusTrade/TTT_Pacman/Uploads/Books/';
+                $uploadDir = 'C:/Xampp/htdocs/CampusTradeTTT/Uploads/Books/';
 
                 if (!is_dir($uploadDir)) {
                     die('Upload folder NOT found for books: ' . $uploadDir);
@@ -158,7 +163,7 @@ if (isset($_POST['edit_profile'])) {
         if ($error === UPLOAD_ERR_OK && $file['size'] > 0) {
 
             // 🔹 ABSOLUTE PATH on disk – must match your real folder
-            $uploadDir = 'C:/Xampp/htdocs/TTT4CampusTrade/TTT_Pacman/Uploads/Profiles/';
+            $uploadDir = 'C:/Xampp/htdocs/CampusTradeTTT/Uploads/Profiles/';
             $webPrefix = 'Uploads/Profiles/';   // what we store in DB / use in <img src>
 
             if (!is_dir($uploadDir)) {
@@ -224,6 +229,67 @@ if (isset($_POST['edit_profile'])) {
         header('Location: Seller_Controller.php?deleted=1');
         exit;
     }
+        //Edit the book
+if (isset($_POST['edit_book'])) {
+    $booktoEdit = isset($_POST['postedBook']) ? (int) $_POST['postedBook'] : 0;
+
+    if ($booktoEdit <= 0) {
+        $_SESSION['error'] = "Please select a book to edit.";
+        header("Location: Seller_Controller.php");
+        exit;
+    }
+
+    // Fetch the full book row (filter by seller for safety)
+    $book = $userModel->GetBookId($booktoEdit, $sellerId);
+
+    if (!$book) {
+        $_SESSION['error'] = "Book not found.";
+        header("Location: Seller_Controller.php");
+        exit;
+    }
+
+    include 'Edit_book.php';  // $book is now available in that file
+    exit;
+}
+
+
+if (isset($_POST['update_book'])) {
+
+    $Book_info = [
+        'id'          => isset($_POST['book_id']) ? (int) $_POST['book_id'] : 0,
+        'titleAuthor' => trim($_POST['titleAuthor'] ?? ''),
+        'isbn'        => trim($_POST['isbn'] ?? ''),
+        'price'       => trim($_POST['price'] ?? '0'),
+        'condition'   => $_POST['condition'] ?? 'New',
+        'courseDept'  => trim($_POST['courseDept'] ?? ''),
+        'contact'     => trim($_POST['contact'] ?? ''),
+    ];
+
+    if ($Book_info['id'] <= 0) {
+        $_SESSION['error'] = "Invalid book.";
+        header("Location: Seller_Controller.php");
+        exit;
+    }
+
+    try {
+        $Edit_Book = $userModel->UpdateBook($Book_info, $sellerId);
+
+        if ($Edit_Book) {
+            $_SESSION['success'] = "Book updated successfully.";
+        } else {
+            $_SESSION['error'] = "Failed to update book (no rows changed).";
+        }
+
+        header("Location: Seller_Controller.php");
+        exit;
+
+    } catch (Exception $e) {
+        $_SESSION['error'] = "Error: " . $e->getMessage();
+        header("Location: Seller_Controller.php");
+        exit;
+    }
+}
+
 }
 
 /* ============================================

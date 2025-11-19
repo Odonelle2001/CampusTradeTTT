@@ -207,3 +207,42 @@
   color: #555;
   margin-top: 10px;
 }
+
+/*Edit Page Styling*/
+/* Centers the edit-book panel on the page */
+.edit-book-wrapper {
+  min-height: 100vh;          /* full viewport height */
+  display: flex;
+  justify-content: center;    /* center horizontally */
+  align-items: center;        /* center vertically */
+  padding: 2rem;              /* space around on small screens */
+  box-sizing: border-box;
+}
+
+/* Make the panel look like a nice card, not full-width */
+.edit-book-panel {
+  max-width: 450px;           /* <= this is the "fit" width */
+  width: 100%;                /* but still responsive */
+  margin: 0 auto;
+  padding: 1.8rem 2rem;
+  border-radius: 10px;
+  background: #ffffff;        /* or inherit your existing theme */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* soft shadow card look */
+}
+
+.edit-book-panel input,
+.edit-book-panel select {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0.8rem;
+}
+
+/* Center the heading a bit for style */
+.edit-book-panel h2 {
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.edit-book-panel {
+  max-width: 380px;
+}

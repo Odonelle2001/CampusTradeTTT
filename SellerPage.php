@@ -76,6 +76,8 @@ include('header.php');
             <?php endforeach; ?>
           </select>
           <button class="button delete" type="submit" name="delete_book" value="1">Delete Book</button>
+          <button class="button delete" type="submit" name="edit_book" value="1">Edit Book</button>
+
         </form>
       </div>
 
@@ -106,6 +108,8 @@ include('header.php');
 
   <div class="button-group">
     <button class="button" type="submit" name="post_book" value="1">Post Book</button>
+
+
   </div>
 </form>
 
