@@ -16,6 +16,9 @@ $vEmail      = $vEmail      ?? '';
 $vPay        = $vPay        ?? '';
 $postedBooks = $postedBooks ?? [];
 
+$vFirst = $vFirst ?? '';
+$vLast  = $vLast  ?? '';
+
 include('header.php');
 ?>
 
@@ -49,13 +52,65 @@ include('header.php');
     </small>
   </div>
 
-  <p>Name: <?= htmlspecialchars($vFirstName) ?></p>
-  <p>Status: <?= htmlspecialchars($vAcad) ?></p>
-  <p>School: <?= htmlspecialchars($vSchool) ?></p>
-  <p>Major: <?= htmlspecialchars($vMajor) ?></p>
-  <p>Location: <?= htmlspecialchars($vCityState) ?></p>
-  <p>Email: <?= htmlspecialchars($vEmail) ?></p>
-  <p>Preferred Payment: <?= htmlspecialchars($vPay) ?></p>
+<div class="profile-fields">
+
+  <label>
+    First Name
+    <input type="text" name="first_name"
+           value="<?= htmlspecialchars($vFirst) ?>">
+  </label>
+
+  <label>
+    Last Name
+    <input type="text" name="last_name"
+           value="<?= htmlspecialchars($vLast) ?>">
+  </label>
+
+  <label>
+    Status
+    <select name="acad_role">
+      <option value="Student" <?= ($vAcad === 'Student') ? 'selected' : '' ?>>Student</option>
+      <option value="Alumni"  <?= ($vAcad === 'Alumni')  ? 'selected' : '' ?>>Alumni</option>
+    </select>
+  </label>
+
+  <label>
+    School
+    <input type="text" name="school_name"
+           value="<?= htmlspecialchars($vSchool) ?>">
+  </label>
+
+  <label>
+    Major
+    <input type="text" name="major"
+           value="<?= htmlspecialchars($vMajor) ?>">
+  </label>
+
+  <label>
+    Location
+    <input type="text" name="city_state"
+           value="<?= htmlspecialchars($vCityState) ?>">
+  </label>
+
+  <label>
+    Email (read-only)
+    <input type="email" name="email"
+           value="<?= htmlspecialchars($vEmail) ?>" readonly>
+  </label>
+
+  <label>
+    Preferred Payment
+    <select name="preferred_pay">
+      <option value="Cash"      <?= ($vPay === 'Cash')      ? 'selected' : '' ?>>Cash</option>
+      <option value="Venmo"     <?= ($vPay === 'Venmo')     ? 'selected' : '' ?>>Venmo</option>
+      <option value="Zelle"     <?= ($vPay === 'Zelle')     ? 'selected' : '' ?>>Zelle</option>
+      <option value="PayPal"    <?= ($vPay === 'PayPal')    ? 'selected' : '' ?>>PayPal</option>
+      <option value="Cash App"  <?= ($vPay === 'Cash App')  ? 'selected' : '' ?>>Cash App</option>
+      <option value="Other"     <?= ($vPay === 'Other')     ? 'selected' : '' ?>>Other</option>
+    </select>
+  </label>
+
+</div>
 
   <!-- hidden flag so the controller knows this is a profile update -->
   <input type="hidden" name="edit_profile" value="1">

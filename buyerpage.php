@@ -11,6 +11,10 @@ $db = require __DIR__ . '/Database.php';
 
 $buyerId = (int) $_SESSION['user_id'];
 
+require __DIR__ . '/UserModel.php';
+$userModel = new UserModel($db);
+$buyerNotifications = $userModel->getUnreadNotifications($buyerId, 5);
+
 /* ---- 1) Load profile for the logged-in user ---- */
 $profileSql = "
     SELECT 

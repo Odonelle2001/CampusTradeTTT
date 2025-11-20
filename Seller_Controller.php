@@ -65,6 +65,8 @@ $vMajor     = $profile['major']       ?? '';
 $vCityState = $profile['city_state']  ?? '';
 $vEmail     = $profile['email']       ?? '';
 $vPay       = $profile['preferred_pay'] ?? '';
+$vFirst = $profile['first_name'] ?? '';
+$vLast  = $profile['last_name']  ?? '';
 
 /* ============================================
    2) HANDLE POST REQUESTS
@@ -157,6 +159,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
         $stmt->execute();
         $stmt->close();
+
+        $userModel->addNotification(
+            $sellerId,
+            'seller',
+            'Book Posted',
+            'Your book "' . $titleAuthor . '" is now listed for buyers.',
+            'Seller_Controller.php'
+        );
 
         header('Location: Seller_Controller.php?posted=1');
         exit;
@@ -282,11 +292,60 @@ if (isset($_POST['update_book'])) {
         exit;
     }
 
+    // --- keep the existing image path unless a new file is uploaded ---
+    $existingImage = trim($_POST['existing_image'] ?? '');
+    $newImagePath  = $existingImage;   // default: keep old image
+
+    // --- handle optional book image upload on update ---
+    if (!empty($_FILES['bookImage']['name'])) {
+        $file  = $_FILES['bookImage'];
+        $error = $file['error'];
+
+        if ($error === UPLOAD_ERR_OK && $file['size'] > 0) {
+
+            // same root logic as post_book
+            $uploadDir = $UPLOAD_ROOT . "Books/";
+            if (!is_dir($uploadDir)) {
+                die('Upload folder NOT found for books (update): ' . $uploadDir);
+            }
+
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if (!in_array($ext, ['jpg','jpeg','png','gif','webp'])) {
+                $ext = 'jpg';
+            }
+
+            $fileName = 'book_' . $sellerId . '_' . time() . '_' . mt_rand(1000,9999) . '.' . $ext;
+            $fullPath = $uploadDir . $fileName;
+
+            if (move_uploaded_file($file['tmp_name'], $fullPath)) {
+                // relative path for DB + <img src>
+                $newImagePath = 'Uploads/Books/' . $fileName;
+            } else {
+                die('move_uploaded_file failed for book image (update). Tried: ' . $fullPath);
+            }
+
+        } elseif ($error !== UPLOAD_ERR_NO_FILE) {
+            die('Upload error for bookImage (update). Error code: ' . $error);
+        }
+    }
+
+    // store final image path (old or new) into Book_info
+    $Book_info['image_path'] = $newImagePath;
+
     try {
         $Edit_Book = $userModel->UpdateBook($Book_info, $sellerId);
 
         if ($Edit_Book) {
             $_SESSION['success'] = "Book updated successfully.";
+
+            $userModel->addNotification(
+                $sellerId,
+                'seller',
+                'Book Updated',
+                'Your book "' . $Book_info['titleAuthor'] . '" has been updated.',
+                'Seller_Controller.php'
+            );
+
         } else {
             $_SESSION['error'] = "Failed to update book (no rows changed).";
         }
@@ -300,6 +359,7 @@ if (isset($_POST['update_book'])) {
         exit;
     }
 }
+
 
 }
 
@@ -315,6 +375,12 @@ $stmt->execute();
 $res = $stmt->get_result();
 $postedBooks = $res->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
+
+/* ============================================
+   3b) LOAD NOTIFICATIONS FOR THIS SELLER
+   ============================================ */
+$sellerNotifications = $userModel->getUnreadNotifications($sellerId, 5);
+
 
 /* ============================================
    4) RENDER SELLER PAGE

@@ -24,6 +24,8 @@ session_start();
 
     <form method="post" action="Seller_Controller.php" enctype="multipart/form-data">
       <input type="hidden" name="book_id" value="<?= htmlspecialchars($book['id']) ?>">
+      <input type="hidden" name="existing_image" value="<?= htmlspecialchars($book['image_path'] ?? '') ?>">
+
 
       <div class="book-upload">
         <input id="bookUpload" name="bookImage" type="file" accept="image/*" hidden>
