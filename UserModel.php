@@ -307,87 +307,10 @@ public function UpdateBook(array $Book_info, int $sellerId) {
     // true if row actually changed
     return $stmt->affected_rows > 0;
 }
-  /**
-   * Add a notification for a user (buyer or seller).
-   */
-  public function addNotification(
-      int $userId,
-      string $role,
-      string $title,
-      string $message,
-      ?string $link = null
-  ): void {
-      $sql = "
-        INSERT INTO notifications (user_id, role, title, message, link)
-        VALUES (?, ?, ?, ?, ?)
-      ";
-
-      $stmt = $this->db->prepare($sql);
-      if (!$stmt) {
-          throw new RuntimeException('DB error (prepare addNotification): ' . $this->db->error);
-      }
-
-      $stmt->bind_param('issss', $userId, $role, $title, $message, $link);
-      $stmt->execute();
-      $stmt->close();
-  }
-
-  /**
-   * Get unread notifications for a user (newest first).
-   */
-  public function getUnreadNotifications(int $userId, int $limit = 5): array {
-      $sql = "
-        SELECT id, title, message, link, created_at
-        FROM notifications
-        WHERE user_id = ? AND is_read = 0
-        ORDER BY created_at DESC
-        LIMIT ?
-      ";
-
-      $stmt = $this->db->prepare($sql);
-      if (!$stmt) {
-          throw new RuntimeException('DB error (prepare getUnreadNotifications): ' . $this->db->error);
-      }
-
-      $stmt->bind_param('ii', $userId, $limit);
-      $stmt->execute();
-      $result = $stmt->get_result();
-      $rows = $result->fetch_all(MYSQLI_ASSOC);
-      $stmt->close();
-
-      return $rows;
-  }
-
-  /**
-   * Mark one notification as read.
-   */
-  public function markNotificationRead(int $notifId, int $userId): bool {
-      $sql = "
-        UPDATE notifications
-        SET is_read = 1
-        WHERE id = ? AND user_id = ?
-        LIMIT 1
-      ";
-
-      $stmt = $this->db->prepare($sql);
-      if (!$stmt) {
-          throw new RuntimeException('DB error (prepare markNotificationRead): ' . $this->db->error);
-      }
-
-      $stmt->bind_param('ii', $notifId, $userId);
-      $stmt->execute();
-      $ok = $stmt->affected_rows > 0;
-      $stmt->close();
-
-      return $ok;
-  }
-
-
-
 
     }
 
-    
+  
 
 
 ?>

@@ -160,14 +160,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $stmt->close();
 
-        $userModel->addNotification(
-            $sellerId,
-            'seller',
-            'Book Posted',
-            'Your book "' . $titleAuthor . '" is now listed for buyers.',
-            'Seller_Controller.php'
-        );
-
         header('Location: Seller_Controller.php?posted=1');
         exit;
     }
@@ -338,14 +330,6 @@ if (isset($_POST['update_book'])) {
         if ($Edit_Book) {
             $_SESSION['success'] = "Book updated successfully.";
 
-            $userModel->addNotification(
-                $sellerId,
-                'seller',
-                'Book Updated',
-                'Your book "' . $Book_info['titleAuthor'] . '" has been updated.',
-                'Seller_Controller.php'
-            );
-
         } else {
             $_SESSION['error'] = "Failed to update book (no rows changed).";
         }
@@ -375,12 +359,6 @@ $stmt->execute();
 $res = $stmt->get_result();
 $postedBooks = $res->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
-
-/* ============================================
-   3b) LOAD NOTIFICATIONS FOR THIS SELLER
-   ============================================ */
-$sellerNotifications = $userModel->getUnreadNotifications($sellerId, 5);
-
 
 /* ============================================
    4) RENDER SELLER PAGE
