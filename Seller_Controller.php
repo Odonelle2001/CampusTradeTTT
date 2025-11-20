@@ -8,6 +8,15 @@ $db = require __DIR__ . '/Database.php';
 
 require __DIR__ . '/UserModel.php';
 
+if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+    // Windows (XAMPP)
+    $UPLOAD_ROOT = "C:/xampp/htdocs/CampusTradeTTT/Uploads/";
+} else {
+    // macOS (XAMPP/MAMP)
+    // __DIR__ is "/Applications/XAMPP/xamppfiles/htdocs/CampusTradeTTT"
+    $UPLOAD_ROOT = __DIR__ . "/Uploads/";
+}
+
 
 $userModel = new UserModel($db);
 
@@ -96,7 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($error === UPLOAD_ERR_OK && $file['size'] > 0) {
 
                 // 🔹 Absolute path to Books folder (must match your real path)
-                $uploadDir = 'C:/Xampp/htdocs/CampusTradeTTT/Uploads/Books/';
+                $uploadDir = $UPLOAD_ROOT . "Books/";
+                $webPrefix = "Uploads/Books/";
+
 
                 if (!is_dir($uploadDir)) {
                     die('Upload folder NOT found for books: ' . $uploadDir);
@@ -163,7 +174,7 @@ if (isset($_POST['edit_profile'])) {
         if ($error === UPLOAD_ERR_OK && $file['size'] > 0) {
 
             // 🔹 ABSOLUTE PATH on disk – must match your real folder
-            $uploadDir = 'C:/Xampp/htdocs/CampusTradeTTT/Uploads/Profiles/';
+            $uploadDir = $UPLOAD_ROOT . "Profiles/";
             $webPrefix = 'Uploads/Profiles/';   // what we store in DB / use in <img src>
 
             if (!is_dir($uploadDir)) {
