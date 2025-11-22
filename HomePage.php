@@ -3,6 +3,12 @@ include('header.php');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+$searchResult = $_SESSION['searchResult'] ?? null;
+$searchError  = $_SESSION['searchError'] ?? null;
+
+// optional: clear after showing once
+//unset($_SESSION['searchResult'], $_SESSION['searchError']);
+
 // connect to DB
 $db = require __DIR__ . '/Database.php';
 
@@ -40,13 +46,48 @@ $browseHref = isset($_SESSION['user_id'])
     <h1 class="hero-title">CampusTrade</h1>
     <p class="hero-subtitle">Buy and sell directly with Minnesota State students</p>
 
-    <div class="search-container">
+    <form action="Home_Controller.php" class="search-container" method = "POST">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search by title, author, ISBN, or course code...">
-      <button class="search-btn">Search</button>
-    </div>
+      <input type="text" name = "entered_book" placeholder="Search by title, author, ISBN, or course code..." required>
+      <button class="search-btn" name = "search_book">Search</button>
+    </form>
 
-    <div class="action-buttons">
+   <!-- Display the book -->
+<div class="Display-container">
+
+  <?php if (!empty($searchError)): ?>
+    <p id="flash-error" class="flash-msg error">
+      <?= htmlspecialchars($searchError) ?>
+    </p>
+  <?php endif; ?>
+
+  <?php if (!empty($searchResult)): ?>
+  <div class="Display-container">
+    <a href="buyButtonpage.php?id=<?= urlencode($searchResult['id']) ?>" class="book-link">
+      <div class="book-card flash-msg success" id="flash-success">
+        <div class="book-img">
+          <img
+            src="<?= htmlspecialchars($searchResult['image_path'] ?? 'Images/placeholder-book.png') ?>"
+            alt="<?= htmlspecialchars($searchResult['title']) ?>"
+          >
+        </div>
+
+        <div class="book-title">
+          <?= htmlspecialchars($searchResult['title']) ?>
+        </div>
+
+        <div class="book-price">
+          $<?= htmlspecialchars($searchResult['price']) ?>
+        </div>
+      </div>
+    </a>
+  </div>
+<?php endif; ?>
+
+</div>
+
+
+<div class="action-buttons">
       <button class="buy-sell-btn" onclick="window.location.href='buyerpage.php'">Buy</button>
       <button class="buy-sell-btn" onclick="window.location.href='SellerPage.php'">Sell</button>
 </div>

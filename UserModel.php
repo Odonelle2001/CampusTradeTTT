@@ -306,7 +306,37 @@ public function UpdateBook(array $Book_info, int $sellerId) {
 
     // true if row actually changed
     return $stmt->affected_rows > 0;
-}
+    }
+
+    public function ReturnBook($book_search){
+
+      $Search = trim($book_search);
+
+      if($Search === ''){
+        throw new InvalidArgumentException("Please enter a title or ISBN number.");
+      }
+      $sql_Search= "SELECT *FROM booklistings 
+                    WHERE LOWER(title) LIKE ? OR isbn LIKE ?
+                    ORDER BY created_at DESC";
+
+      $stmt = $this -> db ->prepare($sql_Search);
+
+      if(!$stmt){
+        throw new RuntimeException('Database error: '. $this->db->error);
+      }
+
+      $like = "%" . $Search . "%";
+      $stmt -> bind_param("ss", $like, $like);
+      $stmt -> execute();
+
+      $returned_book = $stmt -> get_result();
+      $book = $returned_book -> fetch_assoc();
+
+      if(!$book){
+        throw new InvalidArgumentException("Book not available");
+      }
+      return $book;
+    }
 
     }
 
