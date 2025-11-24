@@ -85,6 +85,9 @@ sort($depts);
     <!-- top actions inside the cream box -->
     <div class="top-actions">
       <a href="SellerPage.php" class="btn switch">Switch to Seller</a>
+      
+      <a href="FeedPage.php" class="btn feed">Campus Feed</a>
+      
       <a href="logout.php" class="btn logout">LogOut</a>
     </div>
 
