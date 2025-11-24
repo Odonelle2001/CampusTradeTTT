@@ -28,11 +28,20 @@ include('header.php');
 
       <!-- Top Actions -->
       <div class="top-actions">
-        <button class="button" type="button" onclick="window.location.href='buyerpage.php'">Switch to Buyer</button>
+        <button class="button" type="button"
+                onclick="window.location.href='buyerpage.php'">
+          Switch to Buyer
+        </button>
+
+        <button class="button" type="button"
+                onclick="window.location.href='FeedPage.php'">
+          Campus Feed
+        </button>
+
         <form method="post" action="logout.php" style="display:inline;">
           <button class="button logout" type="submit">LogOut</button>
         </form>
-      </div> 
+      </div>
 
       <!-- LEFT: Profile Panel -->
   <div class="profile-panel">

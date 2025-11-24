@@ -363,4 +363,21 @@ body {
     align-items: stretch;
   }
 }
+.btn.feed {
+  background-color: #FF8351;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+   border: 2px solid #e67346;;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn.feed:hover {
+  background-color: #e67346;
+}
 

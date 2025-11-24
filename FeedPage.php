@@ -1,5 +1,9 @@
 <?php
 session_start();
+if (empty($_SESSION['user_id'])) {
+    header('Location: LoginPage.php');
+    exit;
+}
 include('header.php');
 
 $userName = isset($_SESSION['firstName']) && $_SESSION['firstName'] !== ''
@@ -8,6 +12,8 @@ $userName = isset($_SESSION['firstName']) && $_SESSION['firstName'] !== ''
 
 $userEmail = isset($_SESSION['email']) ? $_SESSION['email'] : '';
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
