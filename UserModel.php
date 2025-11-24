@@ -3,7 +3,7 @@
 class UserModel {
   private mysqli $db;
 
-  // Constructor: accept a PDO instance
+  // Constructor: accept a mysqli instance
   public function __construct(mysqli $db) {
     $this ->db = $db;
   }
@@ -102,75 +102,6 @@ public function VerifyUser(string $email, string $password): array {
     
     }
 
-
-    /*
-    public function ProfileExtraction(): array{
-    $User_profile = [];
-
-    if (empty($_SESSION['user_id'])) {
-      throw new RuntimeException('Not logged in');
-    }
-    $id = (int) $_SESSION['user_id'];
-
-      $sql_Profile = "SELECT * FROM accounts WHERE id = ? LIMIT = 1";
-
-      $stmt = $this->db->prepare($sql_Profile);
-
-      //Handle any Database failures
-      if(!$stmt){
-        throw new RuntimeException("Database Preparation failed: {$this->db->error}");
-      }
-      $stmt = bind_param("i",$id);
-      $stmt ->execute(); 
-
-      $profile = $stmt -> get_result()-> fetch_assoc() ?? [];
-
-      $Profile_Method = PaymentMeth($id);
-      $User_img = $Profile_Method['profile_image'] ?? null;
-      $User_Name = $profile['first_name'] ?? null;
-      $User_Acad = $profile['acad_role'] ?? null;
-      $User_School = $profile['school_name'] ?? null;
-      $User_Major = $profile['major'] ?? null;
-      $User_Location = $profile['city_state'] ?? null;
-      $User_Email = $profile['email'] ?? null;
-      $User_Payment = $Profile_Method['preferred_pay'] ?? null;
-
-      $User_profile = [
-        $User_img,
-        $User_Name,
-        $User_Acad,
-        $User_School,
-        $User_Major,
-        $User_Location,
-        $User_Email,
-        $User_Payment,
-      ];
-
-      return $User_profile;
-
-    }
-
-    public function PaymentMeth(int $id){
-      //SQL Query to extract the users profile picture and preffered Payment Method
-      $sql_Profile_ad = "SELECT * FROM userprofile WHERE $int = ? LIMIT = 1";
-
-      $stmt = $this->db->prepare($sql_Profile_ad);
-
-      //Handle any DB issues
-      if(!$stmt){
-        throw new RuntimeException("Database Preparation failed: {$this->db->error}");
-      }
-      $stmt = bind_param("i", $int);
-      $stmt -> execute();
-
-      //Fetch all the necessary data from the databse 
-      $Payment_method = $stmt -> get_result()-> fetch_assoc();
-
-      return $Payment_method;
-    } */
-   
-  // UserModel.php
-
 public function ProfileExtraction(): array {
     if (empty($_SESSION['user_id'])) {
         throw new RuntimeException('Not logged in');
@@ -178,7 +109,7 @@ public function ProfileExtraction(): array {
     $id = (int) $_SESSION['user_id'];
 
     // ---- accounts ----
-    $sql = "SELECT first_name, acad_role, school_name, major, city_state, email
+    $sql = "SELECT first_name, last_name, acad_role, school_name, major, city_state, email
             FROM accounts
             WHERE id = ?
             LIMIT 1";
@@ -196,6 +127,7 @@ public function ProfileExtraction(): array {
     // Provide all keys consistently so view never breaks
     return array_merge([
         'first_name'    => null,
+        'last_name'     => null,
         'acad_role'     => null,
         'school_name'   => null,
         'major'         => null,
@@ -223,7 +155,7 @@ public function PaymentMeth(int $id): array {
 
 
     //Function saves all the Book information into the database
-    public function PostBooks(array $books){
+public function PostBooks(array $books){
 
       $book_image = $books['book_image'];
       $title = $books['title'];
@@ -241,10 +173,6 @@ public function PaymentMeth(int $id): array {
       $stmt -> execute();
 
       return $stmt->insert_id; // >0 on success
-    }
-
-    public function UpdateProfileImage(){
-
     }
           // Fetch one book row by id 
 public function GetBookId(int $id, int $sellerId) {
@@ -315,7 +243,7 @@ public function UpdateBook(array $Book_info, int $sellerId) {
       if($Search === ''){
         throw new InvalidArgumentException("Please enter a title or ISBN number.");
       }
-      $sql_Search= "SELECT *FROM booklistings 
+      $sql_Search= "SELECT * FROM booklistings 
                     WHERE LOWER(title) LIKE ? OR isbn LIKE ?
                     ORDER BY created_at DESC";
 
@@ -337,8 +265,143 @@ public function UpdateBook(array $Book_info, int $sellerId) {
       }
       return $book;
     }
+/*
+    public function UpdateProfile(array $profile, int $sellerId){
+
+      $first   = trim($profile['first']   ?? '');
+      $last    = trim($profile['last']    ?? '');
+      $acad    = trim($profile['acad']    ?? 'Student');
+      $school  = trim($profile['school']  ?? '');
+      $major   = trim($profile['major']   ?? '');
+      $citySt  = trim($profile['citySt']  ?? '');
+      $payment = trim($profile['payment'] ?? 'Cash');
+
+      $sql_updateacc = "UPDATE accounts SET first_name = ?, last_name = ?, acad_role = ?, school_name = ?, major = ?, city_state = ?
+                        WHERE id = ?
+                        LIMIT 1";
+      $stmt = $this ->db->prepare($sql_updateacc);
+      if(!$stmt){
+        throw new RuntimeException("Database error: " . $this->db->error);
+      }
+
+      $updating = $stmt->bind_param("ssssssi", $first, $last, $acad, $school, $major, $citySt, $sellerId);
+
+      if(!$updating){
+        throw new RuntimeException("Database error with updating Profile: " . $this ->db->error);
+      }
+      if(!$stmt ->execute()){
+        throw new RuntimeException("Database error execute UpdateProfile accounts): " . $stmt->db->error);
+      }
+
+      $accChanged = $stmt->affected_rows > 0;
+
+      $stmt ->close();
+
+      $payment_changed = UpdatePayment($sellerId, $payment);
+
+      return ($accChanged || $payment_changed);
 
     }
+    public function UpdatePayment(int $sellerId, string $payment){
+
+      $sql_update_prof = "INSERT INTO userprofile (user_id, preferred_pay)
+                          VALUES (?, ?)
+                          ON DUPLICATE KEY UPDATE preferred_pay = VALUES(preferred_pay)
+        ";
+
+        $stmtProf = $this->db->prepare($sql_update_prof);
+        if (!$stmtProf) {
+            throw new RuntimeException("Database error (prepare UpdateProfile userprofile): " . $this->db->error);
+        }
+
+        if (!$stmtProf->bind_param("is", $sellerId, $payment)) {
+            throw new RuntimeException("Database error (bind_param UpdateProfile userprofile): " . $stmtProf->error);
+        }
+
+        if (!$stmtProf->execute()) {
+            throw new RuntimeException("Database error (execute UpdateProfile userprofile): " . $stmtProf->error);
+        }
+
+        $profChanged = $stmtProf->affected_rows > 0;
+        $stmtProf->close();
+        return $profChanged;
+
+    }*/
+ public function UpdateProfile(array $profile, int $userId): bool {
+
+    $first   = trim($profile['first']   ?? '');
+    $last    = trim($profile['last']    ?? '');
+    $acad    = trim($profile['acad']    ?? 'Student');
+    $school  = trim($profile['school']  ?? '');
+    $major   = trim($profile['major']   ?? '');
+    $citySt  = trim($profile['citySt']  ?? '');
+
+    $sql_updateacc = "
+        UPDATE accounts 
+        SET first_name=?, last_name=?, acad_role=?, school_name=?, major=?, city_state=?
+        WHERE id=? LIMIT 1
+    ";
+
+    $stmt = $this->db->prepare($sql_updateacc);
+    if(!$stmt){
+        throw new RuntimeException("prepare UpdateProfile accounts: " . $this->db->error);
+    }
+
+    if(!$stmt->bind_param("ssssssi", $first, $last, $acad, $school, $major, $citySt, $userId)){
+        throw new RuntimeException("bind UpdateProfile accounts: " . $stmt->error);
+    }
+
+    if(!$stmt->execute()){
+        throw new RuntimeException("execute UpdateProfile accounts: " . $stmt->error);
+    }
+
+    $accChanged = $stmt->affected_rows > 0;
+    $stmt->close();
+
+    return $accChanged;
+}
+
+public function UpdateProfileAndPayment(array $profile, int $sellerId): bool {
+
+    $accChanged = $this->UpdateProfile($profile, $sellerId);
+
+    $payment = trim($profile['payment'] ?? 'Cash');
+    $payChanged = $this->UpdatePayment($sellerId, $payment);
+
+    return ($accChanged || $payChanged);
+}
+
+public function UpdateProfileImage(string $imagePath, int $sellerId): bool {
+    // If the row may not exist yet, do an UPSERT (insert or update)
+    $sql_Profile_img = "
+        INSERT INTO userprofile (user_id, profile_image)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE profile_image = VALUES(profile_image)
+    ";
+
+    $stmt_img = $this->db->prepare($sql_Profile_img);
+    if (!$stmt_img) {
+        throw new RuntimeException("Database error (prepare UpdateProfileImage): " . $this->db->error);
+    }
+
+    if (!$stmt_img->bind_param("is", $sellerId, $imagePath)) {
+        throw new RuntimeException("Database error (bind_param UpdateProfileImage): " . $stmt_img->error);
+    }
+
+    if (!$stmt_img->execute()) {
+        throw new RuntimeException("Database error (execute UpdateProfileImage): " . $stmt_img->error);
+    }
+
+    $img_change = $stmt_img->affected_rows > 0;
+    $stmt_img->close();
+
+    return $img_change;
+}
+
+
+
+
+}
 
   
 

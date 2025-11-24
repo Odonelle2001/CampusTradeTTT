@@ -1,23 +1,23 @@
 <?php
 // sellerpage.php
-// This file is meant to be included by Seller_Controller.php
-if (!isset($vFirstName) && basename(strtolower($_SERVER['SCRIPT_NAME'])) === 'sellerpage.php') {
-    header('Location: Seller_Controller.php');
+if (basename(strtolower($_SERVER['SCRIPT_NAME'])) === 'sellerpage.php' && empty($vFirst) && empty($vFirstName)) {
+    header("Location: Seller_Controller.php");
     exit;
 }
 
-$vImgSrc     = $vImgSrc     ?? 'Images/ProfileIcon.png';
-$vFirstName  = $vFirstName  ?? '';
-$vAcad       = $vAcad       ?? '';
-$vSchool     = $vSchool     ?? '';
-$vMajor      = $vMajor      ?? '';
-$vCityState  = $vCityState  ?? '';
-$vEmail      = $vEmail      ?? '';
-$vPay        = $vPay        ?? '';
+$profile = $userModel->ProfileExtraction();
+
+// Harmonize names so the page never shows blanks
+$vFirst     = $vFirst     ?? ($vFirstName ?? '');
+$vAcad      = $vAcad      ?? '';
+$vSchool    = $vSchool    ?? '';
+$vMajor     = $vMajor     ?? '';
+$vCityState = $vCityState ?? '';
+$vEmail     = $vEmail     ?? '';
+$vPay       = $vPay       ?? '';
+$vImgSrc    = $vImgSrc    ?? "Images/ProfileIcon.png";
 $postedBooks = $postedBooks ?? [];
 
-$vFirst = $vFirst ?? '';
-$vLast  = $vLast  ?? '';
 
 include('header.php');
 ?>
@@ -35,88 +35,50 @@ include('header.php');
       </div> 
 
       <!-- LEFT: Profile Panel -->
-      <div class="profile-panel">
-        <h2>Your Profile</h2>
+  <div class="profile-panel">
+  <h2>Your Profile</h2>
 
-        <!-- Profile Image Upload -->
-        <form id="profileForm" method="POST" enctype="multipart/form-data" action="Seller_Controller.php">
-  <div class="avatar-uploader">
-    <input id="avatarInput" name="profileImage" type="file" accept="image/*" hidden>
-    <label for="avatarInput" class="avatar" aria-label="Upload profile picture">
-      <img id="avatarPreview" src="<?= htmlspecialchars($vImgSrc) ?>" alt="Profile picture">
-      <span class="avatar-icon">+</span>
-    </label>
-    <small>
-      Step 1: Click the circle to choose a photo.  
-      Step 2: It will be saved automatically.
-    </small>
-  </div>
+  <?php if (!empty($_GET['profile']) && $_GET['profile'] === 'updated'): ?>
+    <p style="color: green; font-weight: bold; margin-bottom: 10px;">
+      Changes saved successfully!
+    </p>
+  <?php endif; ?>
 
-<div class="profile-fields">
+  <!-- Profile Image Upload -->
+  <form id="avatarForm" method="POST" enctype="multipart/form-data" action="Seller_Controller.php">
+    <div class="avatar-uploader">
+      <input id="avatarInput" name="profileImage" type="file" accept="image/*" style="display:none;">
 
-  <label>
-    First Name
-    <input type="text" name="first_name"
-           value="<?= htmlspecialchars($vFirst) ?>">
-  </label>
+      <label for="avatarInput" class="avatar" aria-label="Upload profile picture">
+        <img id="avatarPreview"
+             src="<?= htmlspecialchars($vImgSrc) ?>"
+             alt="Profile picture">
+        <span class="avatar-icon">+</span>
+      </label>
 
-  <label>
-    Last Name
-    <input type="text" name="last_name"
-           value="<?= htmlspecialchars($vLast) ?>">
-  </label>
+      <small>Click to upload</small>
+    </div>
 
-  <label>
-    Status
-    <select name="acad_role">
-      <option value="Student" <?= ($vAcad === 'Student') ? 'selected' : '' ?>>Student</option>
-      <option value="Alumni"  <?= ($vAcad === 'Alumni')  ? 'selected' : '' ?>>Alumni</option>
-    </select>
-  </label>
+    <script>
+      document.getElementById("avatarInput").addEventListener("change", () => {
+        document.getElementById("avatarForm").submit();
+      });
+    </script>
 
-  <label>
-    School
-    <input type="text" name="school_name"
-           value="<?= htmlspecialchars($vSchool) ?>">
-  </label>
+    <!-- flag ONLY for image upload -->
+    <input type="hidden" name="edit_profile" value="1">
+  </form>
 
-  <label>
-    Major
-    <input type="text" name="major"
-           value="<?= htmlspecialchars($vMajor) ?>">
-  </label>
+  <p><strong>Name:</strong> <?= htmlspecialchars($vFirst ?: 'Not set') ?></p>
+  <p><strong>Status:</strong> <?= htmlspecialchars($vAcad ?: 'Not set') ?></p>
+  <p><strong>School:</strong> <?= htmlspecialchars($vSchool ?: 'Not set') ?></p>
+  <p><strong>Major:</strong> <?= htmlspecialchars($vMajor ?: 'Not set') ?></p>
+  <p><strong>Location:</strong> <?= htmlspecialchars($vCityState ?: 'Not set') ?></p>
+  <p><strong>Email:</strong> <?= htmlspecialchars($vEmail ?: 'Not set') ?></p>
+  <p><strong>Preferred Payment:</strong> <?= htmlspecialchars($vPay ?: 'Cash') ?></p>
 
-  <label>
-    Location
-    <input type="text" name="city_state"
-           value="<?= htmlspecialchars($vCityState) ?>">
-  </label>
-
-  <label>
-    Email (read-only)
-    <input type="email" name="email"
-           value="<?= htmlspecialchars($vEmail) ?>" readonly>
-  </label>
-
-  <label>
-    Preferred Payment
-    <select name="preferred_pay">
-      <option value="Cash"      <?= ($vPay === 'Cash')      ? 'selected' : '' ?>>Cash</option>
-      <option value="Venmo"     <?= ($vPay === 'Venmo')     ? 'selected' : '' ?>>Venmo</option>
-      <option value="Zelle"     <?= ($vPay === 'Zelle')     ? 'selected' : '' ?>>Zelle</option>
-      <option value="PayPal"    <?= ($vPay === 'PayPal')    ? 'selected' : '' ?>>PayPal</option>
-      <option value="Cash App"  <?= ($vPay === 'Cash App')  ? 'selected' : '' ?>>Cash App</option>
-      <option value="Other"     <?= ($vPay === 'Other')     ? 'selected' : '' ?>>Other</option>
-    </select>
-  </label>
-
-</div>
-
-  <!-- hidden flag so the controller knows this is a profile update -->
-  <input type="hidden" name="edit_profile" value="1">
-
-  <button class="button" type="submit">Update Profile</button>
-</form>
+  <!-- Update Profile button -->
+  <a class="button" href="Seller_Controller.php?view=profile_update">Update Profile</a>
 
 
         <!-- Posted Books -->
