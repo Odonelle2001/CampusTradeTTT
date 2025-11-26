@@ -96,13 +96,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($error === UPLOAD_ERR_OK && $file['size'] > 0) {
 
                 // 🔹 Absolute path to Books folder (must match your real path)
-                $uploadDir = 'C:/Xampp/htdocs/CampusTradeTTT/Uploads/Books/';
+                $uploadDir = 'C:/Xampp/htdocs/TTT4CampusTrade\TTT_pacman/Uploads/Books/'; 
 
                 if (!is_dir($uploadDir)) {
                     die('Upload folder NOT found for books: ' . $uploadDir);
                 }
 
-                // Path stored in DB / used in <img src="...">
+                // Path stored in DB / used in <img src="..."
                 $webPrefix = 'Uploads/Books/';
 
                 $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
@@ -163,7 +163,7 @@ if (isset($_POST['edit_profile'])) {
         if ($error === UPLOAD_ERR_OK && $file['size'] > 0) {
 
             // 🔹 ABSOLUTE PATH on disk – must match your real folder
-            $uploadDir = 'C:/Xampp/htdocs/CampusTradeTTT/Uploads/Profiles/';
+            $uploadDir = 'C:/Xampp/htdocs/TTT4CampusTrade\TTT_Pacman/Uploads/Profiles/';
             $webPrefix = 'Uploads/Profiles/';   // what we store in DB / use in <img src>
 
             if (!is_dir($uploadDir)) {
