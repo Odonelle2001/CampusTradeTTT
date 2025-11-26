@@ -1,7 +1,6 @@
-
 <?php
-include('header.php');
 session_start();
+include('header.php');
 
 // Pull flashes (set by your POST handler)
 $errors = $_SESSION['flash_errors'] ?? [];

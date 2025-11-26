@@ -132,6 +132,16 @@ ALTER TABLE `booklistings`
   ADD CONSTRAINT `booklistings_ibfk_1` FOREIGN KEY (`seller_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE;
 COMMIT;
 
+
+--reset password
+ALTER TABLE accounts
+  ADD COLUMN must_change_password TINYINT(1) NOT NULL DEFAULT 0 AFTER created_at,
+  ADD COLUMN reset_token_hash CHAR(64) NULL AFTER must_change_password,
+  ADD COLUMN reset_expires_at DATETIME NULL AFTER reset_token_hash;
+
+
+
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
