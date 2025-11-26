@@ -1,6 +1,12 @@
 <?php
 session_start();
 
+
+if (!isset($_SESSION['user_id'])) {
+    header('Location: LoginPage.php');
+    exit;
+}
+
 // Connect to DB (mysqli)
 $db = require __DIR__ . '/Database.php';
 

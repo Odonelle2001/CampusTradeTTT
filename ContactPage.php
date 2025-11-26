@@ -1,5 +1,17 @@
 <?php
 session_start();
+
+require 'Database.php';              // creates $db
+require 'ContactPageController.php'; // include controller
+
+$controller = new ContactPageController($db);
+
+// If the form was submitted, handle it
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $controller->submitTicket();
+    // submitTicket() will redirect, so code below won't run on POST
+}
+
 include('header.php');
 ?>
 

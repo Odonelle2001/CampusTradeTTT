@@ -81,6 +81,11 @@ public function VerifyUser(string $email, string $password): array {
         WHERE email = ?
         LIMIT 1
     ";
+    // be consistent with your table name casing (likely 'accounts')
+    $sql_verify = "SELECT id, email, first_name, password, acad_role
+            FROM accounts
+            WHERE email = ?
+            LIMIT 1";
 
     $stmt = $this->db->prepare($sql_verify);
     if (!$stmt) {
