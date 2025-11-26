@@ -63,7 +63,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_regenerate_id(true);
         $_SESSION['user_id']   = (int)$user['id'];
         $_SESSION['email']     = $user['email'];       
-        $_SESSION['firstName'] = $user['first_name'] ?? ''; 
+        $_SESSION['firstName'] = $user['first_name'] ?? '';
+        
+        // If user is using a temporary reset password, force them to change it
+        if (!empty($user['must_change_password']) && (int)$user['must_change_password'] === 1) {
+            $_SESSION['force_pw_change'] = true;
+            header('Location: ChangePassword.php');
+            exit;
+}
 
         // Redirect to controller that builds the view
         header('Location: buyerpage.php');

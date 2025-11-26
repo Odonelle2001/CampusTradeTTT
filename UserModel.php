@@ -69,11 +69,18 @@ public function VerifyUser(string $email, string $password): array {
     $Email = trim($email);
     $pass  = trim($password);
 
-    // be consistent with your table name casing (likely 'accounts')
-    $sql_verify = "SELECT id, email, first_name, password
-            FROM accounts
-            WHERE email = ?
-            LIMIT 1";
+    $sql_verify = "
+        SELECT 
+            id,
+            email,
+            first_name,
+            last_name,
+            password,
+            must_change_password
+        FROM accounts
+        WHERE email = ?
+        LIMIT 1
+    ";
 
     $stmt = $this->db->prepare($sql_verify);
     if (!$stmt) {
@@ -93,14 +100,48 @@ public function VerifyUser(string $email, string $password): array {
         throw new InvalidArgumentException('Invalid password');
     }
 
-    return $user; // return the row so controller can set session fields
+    // return whole row, including must_change_password
+    return $user;
 }
 
 
-    public function ChangePassword(string $password){
-    
-    
+
+public function ChangePassword(int $userId, string $newPassword): void {
+    // Trim and validate
+    $newPassword = trim($newPassword);
+
+    if (strlen($newPassword) < 8) {
+        throw new InvalidArgumentException('Password must be at least 8 characters.');
     }
+
+    // Hash new password
+    $hash = password_hash($newPassword, PASSWORD_DEFAULT);
+
+    // Prepare SQL update
+    $sql = "
+        UPDATE accounts
+        SET password = ?, must_change_password = 0
+        WHERE id = ?
+        LIMIT 1
+    ";
+
+    $stmt = $this->db->prepare($sql);
+    if (!$stmt) {
+        throw new RuntimeException('Database error (ChangePassword prepare): ' . $this->db->error);
+    }
+
+    if (!$stmt->bind_param('si', $hash, $userId)) {
+        throw new RuntimeException('Database error (ChangePassword bind): ' . $stmt->error);
+    }
+
+    if (!$stmt->execute()) {
+        throw new RuntimeException('Database error (ChangePassword execute): ' . $stmt->error);
+    }
+
+    $stmt->close();
+}
+
+
 
 public function ProfileExtraction(): array {
     if (empty($_SESSION['user_id'])) {
