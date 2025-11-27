@@ -623,7 +623,7 @@ input, select {
 /* Book Grid */
 .books-grid {
   background: linear-gradient(135deg, #FFFFFF 0%, #FFF9F5 100%);
-  border: 10px solid #FF8351;
+  border: 3px solid #FF8351;
   border-radius: 20px;
   padding: 60px 50px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);

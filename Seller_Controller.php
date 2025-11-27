@@ -136,13 +136,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($error === UPLOAD_ERR_OK && $file['size'] > 0) {
 
-                $uploadDir = $UPLOAD_ROOT . "Books/";
-                $webPrefix = "Uploads/Books/";
+                // 🔹 Absolute path to Books folder (must match your real path)
+                $uploadDir = 'C:/Xampp/htdocs/CampusTradeTTT/Uploads/Books/';
 
                 if (!is_dir($uploadDir)) {
                     die('Upload folder NOT found for books: ' . $uploadDir);
 
                 }
+
+                // Path stored in DB / used in <img src="...">
+                $webPrefix = 'Uploads/Books/';
 
                 $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
                 if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
@@ -184,9 +187,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    /* =======================================
-       4) DELETE BOOK
-       ======================================= */
+   /* ---- B) UPDATE PROFILE IMAGE ---- */
+if (isset($_POST['edit_profile'])) {
+
+    $newImagePath = null;
+
+    if (!empty($_FILES['profileImage']['name'])) {
+        $file  = $_FILES['profileImage'];
+        $error = $file['error'];
+
+        if ($error === UPLOAD_ERR_OK && $file['size'] > 0) {
+
+            // 🔹 ABSOLUTE PATH on disk – must match your real folder
+            $uploadDir = 'C:/Xampp/htdocs/CampusTradeTTT/Uploads/Profiles/';
+            $webPrefix = 'Uploads/Profiles/';   // what we store in DB / use in <img src>
+
+            if (!is_dir($uploadDir)) {
+                die('Upload folder NOT found for profiles: ' . $uploadDir);
+            }
+
+            // extension
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if (!in_array($ext, ['jpg','jpeg','png','gif','webp'])) {
+                $ext = 'jpg';
+            }
+
+            $fileName = 'avatar_' . $sellerId . '_' . time() . '_' . mt_rand(1000,9999) . '.' . $ext;
+            $fullPath = $uploadDir . $fileName;
+
+            if (move_uploaded_file($file['tmp_name'], $fullPath)) {
+                // this goes in DB
+                $newImagePath = $webPrefix . $fileName;
+            } else {
+                die('move_uploaded_file failed for profile image. Tried: ' . $fullPath);
+            }
+        } elseif ($error !== UPLOAD_ERR_NO_FILE) {
+            die('Upload error for profileImage. Error code: ' . $error);
+        }
+    }
+
+    if ($newImagePath !== null) {
+        // if row exists -> update, otherwise insert
+        $sql = "
+            INSERT INTO userprofile (user_id, profile_image, preferred_pay)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE profile_image = VALUES(profile_image)
+        ";
+
+        $prefPay = $vPay ?: 'Cash';
+
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param("iss", $sellerId, $newImagePath, $prefPay);
+        $stmt->execute();
+        $stmt->close();
+
+        // refresh current page variables
+        $vImgSrc = $newImagePath;
+    }
+
+    header('Location: Seller_Controller.php?profile=updated');
+    exit;
+}
+
+
+    /* ---- C) DELETE BOOK ---- */
     if (isset($_POST['delete_book'])) {
         $bookIdToDelete = isset($_POST['postedBook']) ? (int) $_POST['postedBook'] : 0;
 
