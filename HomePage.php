@@ -88,7 +88,27 @@ $browseHref = isset($_SESSION['user_id'])
 <?php endif; ?>
 
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const resultContainer = document.getElementById('search-result-container');
+    const successCard = document.getElementById('flash-success');
+    const errorMsg = document.getElementById('flash-error');
 
+    // Hide book result after 10 seconds (if it exists)
+    if (successCard) {
+      setTimeout(function () {
+        successCard.style.display = 'none';
+      }, 10000); // 10,000 ms = 10 seconds
+    }
+
+    // Optional: hide "book not available" message after 5 seconds
+    if (errorMsg) {
+      setTimeout(function () {
+        errorMsg.style.display = 'none';
+      }, 5000);
+    }
+  });
+</script>
 
 <div class="action-buttons">
       <button class="buy-sell-btn" onclick="window.location.href='buyerpage.php'">Buy</button>

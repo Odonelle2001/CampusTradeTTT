@@ -1,0 +1,111 @@
+
+/*Profile Update Styling*/
+
+/* Full page flex wrapper to center the panel */
+.profile-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;         /* vertical center */
+  justify-content: center;     /* horizontal center */
+  background: #003543;         /* matches your dark teal bar */
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* The white card that holds the form */
+.profile-panel {
+  width: 100%;
+  max-width: 700px;            /* reduce width here */
+  background: #ffffff;
+  padding: 2rem 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+/* Heading */
+.profile-panel h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  margin-left: 40%;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+/* Form layout */
+.profile-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;                /* space between elements */
+}
+
+.profile-fields label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.profile-fields input,
+.profile-fields select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #f0a96a;   /* matches your orange border */
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+/* Button alignment */
+.profile-fields .button {
+  margin-top: 1.5rem;
+  margin-left:40%;
+  width: fit-content;
+  padding: 0.6rem 1.4rem;
+}
+
+/*Book Edit Styling*/
+/* Full-page background + flex centering */
+.edit-book-page {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #003543;      /* same dark teal as profile page */
+}
+
+/* Wrapper is mostly just for padding on very small screens */
+.edit-book-wrapper {
+  width: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+
+/* Card for the edit form */
+.edit-book-panel {
+  max-width: 600px;          
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.8rem 2rem;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Inputs & selects fill the card width */
+.edit-book-panel input,
+.edit-book-panel select {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0.8rem;
+}
+
+/* Center heading */
+.edit-book-panel h2 {
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+#btn{
+    margin-left: 35%;
+}
+

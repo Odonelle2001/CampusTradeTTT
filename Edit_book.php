@@ -8,12 +8,13 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Book</title>
-    <link rel="stylesheet" href="CSS/BasicSetUp.css">         <!-- Global styles -->
-    <link rel="stylesheet" href="CSS/HeaderNavBar.css">       <!-- Header, nav, layout -->
-    <link rel="stylesheet" href="CSS/ReusableComponents.css"> <!-- Buttons, cards, modals -->
+    <link rel="stylesheet" href="CSS/BasicSetUp.css">     
+    <link rel="stylesheet" href="CSS/HeaderNavBar.css">       
+    <link rel="stylesheet" href="CSS/ReusableComponents.css"> 
     <link rel="stylesheet" href="CSS/LoginForm.css">
     <link rel="stylesheet" href="CSS/BuyButtonPage.css">
-    <link rel="stylesheet" href="css/BuyerPage.css">
+    <link rel="stylesheet" href="CSS/BuyerPage.css">
+    <link rel="stylesheet" href="CSS/ProfileUpdate.css">
 
 </head>
 <body>
@@ -59,7 +60,7 @@ session_start();
       <input type="email" name="contact" placeholder="Contact Info" value="<?= htmlspecialchars($book['contact_info']) ?>">
 
       <div class="button-group">
-        <button class="button" type="submit" name="update_book" value="1">Save Changes</button>
+        <button class="button" id="btn" type="submit" name="update_book" value="1">Save Changes</button>
       </div>
     </form>
   </div>
