@@ -11,6 +11,39 @@ $db = require __DIR__ . '/Database.php';
 
 $buyerId = (int) $_SESSION['user_id'];
 
+$itemsPerPage = 12;
+
+// Read ?page= from URL, default = 1
+$page = isset($_GET['page']) && ctype_digit($_GET['page']) ? (int) $_GET['page'] : 1;
+if ($page < 1) {
+    $page = 1;
+}
+
+/* ---- Count total active books ---- */
+$totalBooks = 0;
+$totalPages = 1;
+
+$countSql = "SELECT COUNT(*) AS total FROM booklistings WHERE status = 'Active'";
+$countResult = $db->query($countSql);
+if ($countResult) {
+    $row = $countResult->fetch_assoc();
+    $totalBooks = (int) ($row['total'] ?? 0);
+    $countResult->free();
+}
+
+if ($totalBooks > 0) {
+    $totalPages = (int) ceil($totalBooks / $itemsPerPage);
+} else {
+    $totalPages = 1;
+}
+
+// If user asks for page bigger than last page, clamp it
+if ($page > $totalPages) {
+    $page = $totalPages;
+}
+
+$offset = ($page - 1) * $itemsPerPage;
+
 /* ---- 1) Load profile for the logged-in user ---- */
 $profileSql = "
     SELECT 
@@ -43,7 +76,7 @@ $vCityState = $profile['city_state']  ?? '';
 $vEmail     = $profile['email']       ?? '';
 $vPay       = $profile['preferred_pay'] ?? '';
 
-/* ---- 2) Load books ---- */
+/* ---- 2) Load books (paginated) ---- */
 $books = [];
 
 $sql = "
@@ -60,13 +93,23 @@ $sql = "
     JOIN accounts a ON b.seller_id = a.id
     WHERE b.status = 'Active'
     ORDER BY b.created_at DESC
+    LIMIT ? OFFSET ?
 ";
-$result = $db->query($sql);
+
+$stmt = $db->prepare($sql);
+$stmt->bind_param('ii', $itemsPerPage, $offset);
+$stmt->execute();
+$result = $stmt->get_result();
+
 if ($result) {
     while ($row = $result->fetch_assoc()) {
         $books[] = $row;
     }
+    $result->free();
 }
+
+$stmt->close();
+
 
 /* ---- 3) Build department list ---- */
 $depts = [];
@@ -196,6 +239,29 @@ sort($depts);
               <?php endforeach; ?>
             <?php endif; ?>
           </div><!-- /#booksGrid -->
+
+                  <!-- Pagination -->
+        <?php if ($totalBooks > 0 && $totalPages > 1): ?>
+          <nav class="pagination-wrapper">
+            <?php if ($page > 1): ?>
+              <a class="page-link prev" href="?page=<?= $page - 1 ?>">&laquo; Prev</a>
+            <?php endif; ?>
+
+            <?php for ($p = 1; $p <= $totalPages; $p++): ?>
+              <a
+                class="page-link <?= $p === $page ? 'active' : '' ?>"
+                href="?page=<?= $p ?>"
+              >
+                <?= $p ?>
+              </a>
+            <?php endfor; ?>
+
+            <?php if ($page < $totalPages): ?>
+              <a class="page-link next" href="?page=<?= $page + 1 ?>">Next &raquo;</a>
+            <?php endif; ?>
+          </nav>
+        <?php endif; ?>
+
         </div><!-- /.books-grid-wrapper -->
       </section><!-- /.library-card -->
     </div><!-- /.content-grid -->

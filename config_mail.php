@@ -1,3 +1,4 @@
+
 <?php
 
 // Email sending is OFF
@@ -11,3 +12,5 @@ const MAIL_USERNAME     = '';
 const MAIL_PASSWORD     = '';
 const MAIL_FROM_ADDRESS = '';
 const MAIL_FROM_NAME    = 'CampusTrade (Demo Mode)';
+
+//https://github.com/PHPMailer/PHPMailer
