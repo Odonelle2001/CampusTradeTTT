@@ -145,3 +145,47 @@ ALTER TABLE accounts
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+--
+-- Table structure for table `tickets`
+--
+
+CREATE TABLE `tickets` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `message` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tickets`
+--
+
+INSERT INTO `tickets` (`id`, `name`, `email`, `message`, `created_at`) VALUES
+(1, 'Anthony Chang', 'fz7416lx@go.minnstate.edu', 'Test', '2025-11-25 22:48:07'),
+(2, 'Anthony Chang', 'fz7416lx@go.minnstate.edu', 'Test', '2025-11-25 22:48:18'),
+(3, 'Anthony', 'changanthony2000@gmail.com', 'Test123', '2025-11-26 00:14:01'),
+(4, 'Sim Chang', 'Anthony@gmail.com', 'THIS MESSAGH', '2025-11-27 01:16:47');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `tickets`
+--
+ALTER TABLE `tickets`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `tickets`
+--
+ALTER TABLE `tickets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+COMMIT;
