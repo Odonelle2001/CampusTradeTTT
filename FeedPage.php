@@ -6,11 +6,59 @@ if (empty($_SESSION['user_id'])) {
 }
 include('header.php');
 
+
 $userName = isset($_SESSION['firstName']) && $_SESSION['firstName'] !== ''
     ? $_SESSION['firstName']
     : (isset($_SESSION['email']) ? $_SESSION['email'] : 'Student User');
 
 $userEmail = isset($_SESSION['email']) ? $_SESSION['email'] : '';
+
+
+$db = require __DIR__ . '/Database.php';
+
+$userId = (int) $_SESSION['user_id'];
+
+$profileSql = "
+    SELECT
+        a.first_name,
+        a.last_name,
+        a.school_name,
+        a.major,
+        a.acad_role,
+        a.city_state,
+        a.email,
+        u.profile_image,
+        u.preferred_pay
+    FROM accounts a
+    LEFT JOIN userprofile u ON u.user_id = a.id
+    WHERE a.id = ?
+";
+
+$stmt = $db->prepare($profileSql);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$res     = $stmt->get_result();
+$profile = $res->fetch_assoc() ?: [];
+$stmt->close();
+
+
+$vImgSrc    = !empty($profile['profile_image']) ? $profile['profile_image'] : 'Images/ProfileIcon.png';
+$vFullName  = trim(($profile['first_name'] ?? '') . ' ' . ($profile['last_name'] ?? ''));
+$vSchool    = $profile['school_name'] ?? '';
+$vMajor     = $profile['major'] ?? '';
+$vAcad      = $profile['acad_role'] ?? '';
+$vCityState = $profile['city_state'] ?? '';
+$vEmail     = $profile['email'] ?? ($userEmail ?: '');
+$vPay       = $profile['preferred_pay'] ?? 'Cash';
+
+
+$displayName   = $vFullName !== '' ? $vFullName : $userName;
+$displaySchool = $vSchool   !== '' ? $vSchool   : 'Your School';
+$displayMajor  = $vMajor    !== '' ? $vMajor    : 'Your Major';
+
+
+$userName  = $displayName;
+$userEmail = $vEmail;
 ?>
 
 
@@ -26,16 +74,17 @@ $userEmail = isset($_SESSION['email']) ? $_SESSION['email'] : '';
 <main class="feed-main-container">
     <div class="feed-container">
 
-        <!-- ========== LEFT SIDEBAR ========== -->
+        <!-- LEFT SIDEBAR  -->
         <div class="left-sidebar">
             <div class="profile-card">
                 <div class="profile-header">
                     <div class="profile-avatar">
-                        <img src="Images/ProfileIcon.png" alt="Profile Picture">
+
+                        <img src="<?= htmlspecialchars($vImgSrc) ?>" alt="Profile Picture">
                     </div>
-                    <h3><?php echo htmlspecialchars($userName); ?></h3>
-                    <p>Metropolitan State University</p>
-                    <p class="user-major">Computer Science</p>
+                    <h3><?= htmlspecialchars($displayName) ?></h3>
+                    <p><?= htmlspecialchars($displaySchool) ?></p>
+                    <p class="user-major"><?= htmlspecialchars($displayMajor) ?></p>
                 </div>
 
                 <div class="profile-stats">
@@ -111,11 +160,12 @@ $userEmail = isset($_SESSION['email']) ? $_SESSION['email'] : '';
             </div>
         </div>
 
-        <!-- ========== MAIN FEED ========== -->
+        <!-- MAIN FEED  -->
         <div class="main-feed">
             <div class="create-post-card">
                 <div class="post-input" style="align-items:flex-start;">
-                    <img src="Images/ProfileIcon.png" alt="Your profile">
+
+                    <img src="<?= htmlspecialchars($vImgSrc) ?>" alt="Your profile">
                     <div style="flex:1;">
                         <p style="margin:0 0 10px; color:#666; font-size:1rem;">
                             Posting as <strong><?php echo htmlspecialchars($userName); ?></strong>
@@ -175,7 +225,7 @@ $userEmail = isset($_SESSION['email']) ? $_SESSION['email'] : '';
             <div class="posts-container" id="posts-container"></div>
         </div>
 
-        <!-- ========== RIGHT SIDEBAR (EVENTS) ========== -->
+
         <div class="right-sidebar">
             <div class="trending-section" id="events-sidebar">
                 <div class="section-header" style="margin-bottom:12px;">
@@ -193,8 +243,9 @@ $userEmail = isset($_SESSION['email']) ? $_SESSION['email'] : '';
 <div id="toastContainer" class="toast-container"></div>
 
 <script>
-const CURRENT_USER_NAME  = <?php echo json_encode($userName); ?>;
-const CURRENT_USER_EMAIL = <?php echo json_encode($userEmail); ?>;
+const CURRENT_USER_NAME   = <?php echo json_encode($userName); ?>;
+const CURRENT_USER_EMAIL  = <?php echo json_encode($userEmail); ?>;
+const CURRENT_USER_AVATAR = <?php echo json_encode($vImgSrc); ?>;
 
 function showToast(message) {
     const container = document.getElementById('toastContainer');
@@ -245,6 +296,7 @@ const FeedStore = (function () {
             eventDateTime: eventDateTime || null,
             author: CURRENT_USER_NAME || 'Student User',
             authorEmail: CURRENT_USER_EMAIL || '',
+            authorAvatar: CURRENT_USER_AVATAR || 'Images/ProfileIcon.png',
             createdAt: now,
             likes: 0,
             liked: false,
@@ -391,9 +443,11 @@ function renderPosts() {
             </button>
         `;
 
+        const avatarSrc = post.authorAvatar || 'Images/ProfileIcon.png';
+
         card.innerHTML = `
             <div class="post-header">
-                <img src="Images/ProfileIcon.png" alt="User">
+                <img src="${avatarSrc}" alt="User">
                 <div class="post-user-info">
                     <h4>${post.author}</h4>
                     <span class="post-meta">${createdLabel}</span>
@@ -541,11 +595,18 @@ function handleDelete(id) {
     }
 }
 
+
 function handleReport(id) {
     const reason = prompt("Please briefly describe why you are reporting this post (e.g., harassment, unsafe content):");
     if (!reason) return;
-    showToast('Thank you. Your report has been noted.');
-    console.log('Reported post', id, 'Reason:', reason, 'By:', CURRENT_USER_EMAIL);
+
+    const params = new URLSearchParams({
+        from: 'feed_report',
+        post_id: id,
+        reason: reason
+    });
+
+    window.location.href = 'ContactPage.php?' + params.toString();
 }
 
 function setupCreatePostForm() {

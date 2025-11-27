@@ -1,8 +1,11 @@
 <?php
+session_start();
 include('header.php');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+
 $searchResult = $_SESSION['searchResult'] ?? null;
 $searchError  = $_SESSION['searchError'] ?? null;
 

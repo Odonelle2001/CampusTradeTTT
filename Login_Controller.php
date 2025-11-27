@@ -60,13 +60,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $userModel->VerifyUser($_POST['email'], $_POST['password']);
 
         //Start a session for the User
-        session_regenerate_id(true);
+       session_regenerate_id(true);
         $_SESSION['user_id']   = (int)$user['id'];
         $_SESSION['email']     = $user['email'];       
-        $_SESSION['firstName'] = $user['first_name'] ?? ''; 
+        $_SESSION['firstName'] = $user['first_name'] ?? '';
+        
+        // If user is using a temporary reset password, force them to change it
+        if (!empty($user['must_change_password']) && (int)$user['must_change_password'] === 1) {
+            $_SESSION['force_pw_change'] = true;
+            header('Location: ChangePassword.php');
+            exit;
+}
+        $_SESSION['acad_role'] = $user['acad_role'];
 
-        // Redirect to controller that builds the view
-        header('Location: buyerpage.php');
+        //Redirect to controller that builds the view
+      header('Location: buyerpage.php');
+
         exit;
 
     } catch (InvalidArgumentException $e) {

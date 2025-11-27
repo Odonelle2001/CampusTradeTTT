@@ -1,3 +1,7 @@
+<?php
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,6 +29,9 @@
       <a href="ContactPage.php">Contact</a>
        <?php if (isset($_SESSION['user_id'])): ?>
     <a href="logout.php">Logout</a>
+  <?php endif; ?>
+  <?php if (!empty($_SESSION['acad_role']) && $_SESSION['acad_role'] === 'Admin'): ?>
+      <a href="/CampusTradeTTT/AdminPages/AdminDash.php">Admin Dashboard</a>
   <?php endif; ?>
   </nav>
   </header>
