@@ -22,7 +22,6 @@ SET time_zone = "+00:00";
 --
 
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `accounts`
 --
@@ -49,7 +48,6 @@ INSERT INTO `accounts` (`id`, `email`, `password`, `first_name`, `last_name`, `s
 (18, 'hk8756oo@go.minnstate.edu', '$2y$10$gdU7Fq7/YHPw7ESs9NAuXONN.yJN8tSDdiaIEVDT6Ciqo.jZPn5Fm', 'Joab', 'Nyabuto', 'Metropolitan State University', 'Computer Science', 'Student', 'Saint Paul', '2025-11-03 03:49:05');
 
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `booklistings`
 --
@@ -69,7 +67,6 @@ CREATE TABLE `booklistings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `userprofile`
 --
@@ -80,6 +77,75 @@ CREATE TABLE `userprofile` (
   `preferred_pay` enum('Venmo','PayPal','CashApp','Zelle','Cash') NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `tickets`
+--
+
+CREATE TABLE `tickets` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `message` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tickets`
+--
+
+INSERT INTO `tickets` (`id`, `name`, `email`, `message`, `created_at`) VALUES
+(1, 'Anthony Chang', 'fz7416lx@go.minnstate.edu', 'Test', '2025-11-25 22:48:07'),
+(2, 'Anthony Chang', 'fz7416lx@go.minnstate.edu', 'Test', '2025-11-25 22:48:18'),
+(3, 'Anthony', 'changanthony2000@gmail.com', 'Test123', '2025-11-26 00:14:01'),
+(4, 'Sim Chang', 'Anthony@gmail.com', 'THIS MESSAGH', '2025-11-27 01:16:47');
+
+
+
+-- --------------------------------------------------------
+--
+--  posts (feed posts)
+--
+
+CREATE TABLE `posts` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `type` enum('post','event') NOT NULL DEFAULT 'post',
+  `text` varchar(500) NOT NULL,
+  `image_data` longtext DEFAULT NULL,
+  `event_datetime` datetime DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+--
+-- post_likes (likes per user per post)
+--
+
+CREATE TABLE `post_likes` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `post_id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+--
+-- post_comments
+--
+
+CREATE TABLE `post_comments` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `post_id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `comment_text` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
 
 --
 -- Indexes for dumped tables
@@ -106,6 +172,39 @@ ALTER TABLE `userprofile`
   ADD PRIMARY KEY (`user_id`);
 
 --
+-- Indexes for table `tickets`
+--
+ALTER TABLE `tickets`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `posts`
+--
+ALTER TABLE `posts`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `posts_user_id` (`user_id`),
+  ADD KEY `posts_type` (`type`);
+
+--
+-- Indexes for table `post_likes`
+--
+ALTER TABLE `post_likes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pl_post_id` (`post_id`),
+  ADD KEY `pl_user_id` (`user_id`),
+  ADD UNIQUE KEY `uniq_post_user` (`post_id`,`user_id`);
+
+--
+-- Indexes for table `post_comments`
+--
+ALTER TABLE `post_comments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pc_post_id` (`post_id`),
+  ADD KEY `pc_user_id` (`user_id`);
+
+
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -122,6 +221,32 @@ ALTER TABLE `booklistings`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `tickets`
+--
+ALTER TABLE `tickets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `posts`
+--
+ALTER TABLE `posts`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `post_likes`
+--
+ALTER TABLE `post_likes`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `post_comments`
+--
+ALTER TABLE `post_comments`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+
+
+--
 -- Constraints for dumped tables
 --
 
@@ -130,62 +255,35 @@ ALTER TABLE `booklistings`
 --
 ALTER TABLE `booklistings`
   ADD CONSTRAINT `booklistings_ibfk_1` FOREIGN KEY (`seller_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `posts`
+--
+ALTER TABLE `posts`
+  ADD CONSTRAINT `posts_ibfk_user` FOREIGN KEY (`user_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `post_likes`
+--
+ALTER TABLE `post_likes`
+  ADD CONSTRAINT `post_likes_ibfk_post` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `post_likes_ibfk_user` FOREIGN KEY (`user_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `post_comments`
+--
+ALTER TABLE `post_comments`
+  ADD CONSTRAINT `post_comments_ibfk_post` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `post_comments_ibfk_user` FOREIGN KEY (`user_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE;
+
 COMMIT;
 
-
---reset password
-ALTER TABLE accounts
-  ADD COLUMN must_change_password TINYINT(1) NOT NULL DEFAULT 0 AFTER created_at,
-  ADD COLUMN reset_token_hash CHAR(64) NULL AFTER must_change_password,
-  ADD COLUMN reset_expires_at DATETIME NULL AFTER reset_token_hash;
-
-
-
+-- reset password fields on accounts
+ALTER TABLE `accounts`
+  ADD COLUMN `must_change_password` TINYINT(1) NOT NULL DEFAULT 0 AFTER `created_at`,
+  ADD COLUMN `reset_token_hash` CHAR(64) NULL AFTER `must_change_password`,
+  ADD COLUMN `reset_expires_at` DATETIME NULL AFTER `reset_token_hash`;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
-
---
--- Table structure for table `tickets`
---
-
-CREATE TABLE `tickets` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `message` text NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tickets`
---
-
-INSERT INTO `tickets` (`id`, `name`, `email`, `message`, `created_at`) VALUES
-(1, 'Anthony Chang', 'fz7416lx@go.minnstate.edu', 'Test', '2025-11-25 22:48:07'),
-(2, 'Anthony Chang', 'fz7416lx@go.minnstate.edu', 'Test', '2025-11-25 22:48:18'),
-(3, 'Anthony', 'changanthony2000@gmail.com', 'Test123', '2025-11-26 00:14:01'),
-(4, 'Sim Chang', 'Anthony@gmail.com', 'THIS MESSAGH', '2025-11-27 01:16:47');
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `tickets`
---
-ALTER TABLE `tickets`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `tickets`
---
-ALTER TABLE `tickets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-COMMIT;
+ /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+ /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
