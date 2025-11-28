@@ -1,7 +1,10 @@
 <?php
+if (empty($_SESSION['acad_role']) || $_SESSION['acad_role'] !== 'Admin') {
+    header("Location: /CampusTradeTTT/HomePage.php");
+    exit;
+}
 
 require_once 'AdminModel.php';
-
 
 class AdminController {
 
@@ -11,7 +14,7 @@ class AdminController {
         $this->model = $model;
     }
 
-public function showUsers(): void{
+    public function showUsers(): void{
         $accounts = $this->model->getAccounts();
         
         echo "<h2>Accounts</h2>";
@@ -39,7 +42,7 @@ public function showUsers(): void{
         echo '</thead>';
         echo '<tbody>';
 
-       //Going through each account and filling in information
+    //Going through each account and filling in information
         foreach ($accounts as $account) {
             echo '<tr>';
             echo '<td>' . htmlspecialchars($account['id']) . '</td>';
@@ -56,19 +59,20 @@ public function showUsers(): void{
             echo '<form method="post" style="display:inline;" onsubmit="return confirm(\'Are you sure you want to delete this Account?\');">';
             echo '<input type="hidden" name="action" value="deleteUser">';
             echo '<input type="hidden" name="user_id" value="' . (int)$account['id'] . '">';
-            echo '<button type="submit">Delete</button>';
+            echo '<button type="submit" class="Button">Delete</button>';
             echo '</form>';
-            echo '<a href="AdminEditUser.php?id=' . (int)$account['id'] . '">Edit</a>';
+            echo '<a href="AdminEditUser.php?id=' . (int)$account['id'] . '" class="Button">Edit</a>';
             echo '</td>';
             echo '</tr>';
         }
         echo '</tbody>';
         echo '</table>';
     }
-public function deleteUser(int $id): void{
+    public function deleteUser(int $id): void{
         $this->model->deleteUserById($id);
     }
-public function showBookListings(): void{
+
+    public function showBookListings(): void{
         $books = $this->model->getBookListings();
         
         echo "<h2>Book Listings</h2>";
@@ -113,20 +117,20 @@ public function showBookListings(): void{
             echo '<form method="post" style="display:inline;" onsubmit="return confirm(\'Are you sure you want to delete this listing?\');">';
             echo '<input type="hidden" name="action" value="deleteBook">';
             echo '<input type="hidden" name="book_id" value="' . (int)$book['id'] . '">';
-            echo '<button type="submit">Delete</button>';
+            echo '<button type="submit" class="Button">Delete</button>';
             echo '</form>';
-            echo '<button type="submit">Edit</button>';
+            echo '<a href="AdminEditBook.php?id=' . (int)$book['id'] . '" class="Button">Edit</a>';
             echo '</td>';
             echo '</tr>';
         }
         echo '</tbody>';
         echo '</table>';
     }
-
-public function deleteBook(int $id): void{
+    public function deleteBook(int $id): void{
         $this->model->deleteBookById($id);
     }
-public function showTickets(){
+
+    public function showTickets(){
         $tickets = $this->model->getTickets();
         
         echo "<h2>Tickets</h2>";
@@ -161,22 +165,20 @@ public function showTickets(){
             echo '<form method="post" style="display:inline;" onsubmit="return confirm(\'Are you sure you want to delete this ticket?\');">';
             echo '<input type="hidden" name="action" value="deleteTicket">';
             echo '<input type="hidden" name="ticket_id" value="' . (int)$ticket['id'] . '">';
-            echo '<button type="submit">Delete</button>';
+            echo '<button type="submit" class="Button">Delete</button>';
             echo '</form>';
-            echo '<button type="submit">Email</button>';
+            echo '<a href="mailto:' . htmlspecialchars($ticket['email']) . '" class="Button">Email</a>';
             echo '</td>';
             echo '</tr>';
         }
         echo '</tbody>';
         echo '</table>';
     }
+    public function deleteTicket(int $id): void{
+        $this->model->deleteTicketById($id);
     }
 
-    
 
-
-
-
-
+}
 
 ?>

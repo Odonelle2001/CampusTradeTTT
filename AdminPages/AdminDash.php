@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 if (empty($_SESSION['acad_role']) || $_SESSION['acad_role'] !== 'Admin') {
@@ -13,9 +12,8 @@ require_once 'AdminController.php';
 $model = new AdminModel($db);
 $controller = new AdminController($model);
 
-// Decide what action to run
+// Post methods for Deletion!
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Handle form submissions (like Delete)
     $postAction = $_POST['action'] ?? null;
 
     if ($postAction === 'deleteBook') {
@@ -25,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $controller->deleteBook($bookId);
         }
 
-        // After deleting, show the Book Listings again
+        // Refreshes Page
         $action = 'booklistings';
 
     } elseif ($postAction === 'deleteUser') {
@@ -35,19 +33,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $controller->deleteUser($userId);
         }
 
-        // After deleting, show the Users table again
         $action = 'users';
+        
+    } elseif ($postAction === 'deleteTicket') {
+    $ticketId = (int)($_POST['ticket_id'] ?? 0);
 
-    } else {
-        // Fallback to GET action if needed
-        $action = $_GET['action'] ?? null;
+    if ($ticketId > 0) {
+        $controller->deleteTicket($ticketId);
     }
+
+    
+    $action = 'tickets';
+}
+
 } else {
-    // Normal button clicks (Users, Book Listings, Tickets)
-    $action = $_GET['action'] ?? null;
+        //GET action for tables
+        $action = $_GET['action'] ?? null;
 }
 ?>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
 
 <link rel= "stylesheet" href="AdminDash.css"> 
@@ -55,33 +60,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 
-
 </head>
-
 
 <body>
 
-    <header>
+<header>
 
     <div class="NavHead">
-        <img src="/CampusTradeTTT\Images\CampusTradeLogo.png" alt="Logo">
+        <img src="/CampusTradeTTT/Images/CampusTradeLogo.png" alt="Logo">
         <h1>Admin Dashboard</h1>
         <nav>
             <a href="../HomePage.php">Home</a>
         </nav>
     </div>
 
-    </header>
+</header>
 
-    <div class="Buttons">
+<div class="Buttons">
         <form method="get">
             <button type="submit" name="action" value="users">Users</button>
             <button type="submit" name="action" value="booklistings">Book Listings</button>
             <button type="submit" name="action" value="tickets">Tickets</button>
         </form>
-    </div>
+</div>
 
-    <div class="Content">
+<div class="Content">
 
     <?php
     if ($action === "users") {
@@ -97,14 +100,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     ?>
 
-    </div>
+</div>
 
 <script>
     $(document).ready(function() {
-        $('.display').DataTable();
+        $('.display').DataTable({
                   scrollX: true
+    });
     });
 </script>
 
 
 </body>
+</html>

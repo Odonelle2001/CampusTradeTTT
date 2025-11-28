@@ -1,4 +1,8 @@
 <?php
+if (empty($_SESSION['acad_role']) || $_SESSION['acad_role'] !== 'Admin') {
+    header("Location: /CampusTradeTTT/HomePage.php");
+    exit;
+}
 
 class AdminModel{
     private mysqli $db;
@@ -70,16 +74,30 @@ class AdminModel{
         return $ok;
     }
 
-    public function getTickets(): array
-{
-    $sql = "SELECT id, name, email, message, created_at 
+    public function getTickets(): array{
+        $sql = "SELECT id, name, email, message, created_at 
             FROM tickets
             ORDER BY created_at DESC";
 
-    $result = $this->db->query($sql);
+        $result = $this->db->query($sql);
 
-    return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-}
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+    
+    public function deleteTicketById(int $id): bool{
+        $sql = "DELETE FROM tickets WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param('i', $id);
+        $ok = $stmt->execute();
+        $stmt->close();
+
+        return $ok;
+    }
 
 
 
