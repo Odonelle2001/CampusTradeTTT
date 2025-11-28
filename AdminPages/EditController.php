@@ -38,6 +38,34 @@ class EditController{
             LIMIT 1
         ";
 
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+        throw new RuntimeException('DB error (prepare update): ' . $this->db->error);
+        }
+
+        $stmt->bind_param(
+            'ssssssi',
+            $first,
+            $last,
+            $acad,
+            $school,
+            $major,
+            $city,
+            $accountId
+        );
+        
+        if (!$stmt->execute()) {
+            $err = $stmt->error;
+            $stmt->close();
+            throw new RuntimeException('DB error (execute update): ' . $err);
+        }
+
+        $changed = $stmt->affected_rows > 0;
+
+        $stmt->close();
+
+        return $changed;
+
         }
     public function getBookById(int $bookId): ?array {
         if ($bookId <= 0) {

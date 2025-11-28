@@ -117,6 +117,7 @@ $vPay        = $vPay        ?? '';
     <select name="acad_role">
       <option value="Student" <?= ($vAcad === 'Student') ? 'selected' : '' ?>>Student</option>
       <option value="Alumni"  <?= ($vAcad === 'Alumni')  ? 'selected' : '' ?>>Alumni</option>
+      <option value="Admin"  <?= ($vAcad === 'Admin')  ? 'selected' : '' ?>>Admin</option>
     </select>
 
     <label for="">School</label>
