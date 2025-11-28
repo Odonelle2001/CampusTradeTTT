@@ -52,6 +52,7 @@ $displayMajor  = $vMajor    !== '' ? $vMajor    : 'Your Major';
 $userName  = $displayName;
 $userEmail = $vEmail;
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,10 +62,12 @@ $userEmail = $vEmail;
     <link rel="stylesheet" href="CSS/FeedPage.css">
 </head>
 <body>
+
+<!-- MAIN FEED WRAPPER -->
 <main class="feed-main-container">
     <div class="feed-container">
 
-
+        <!-- LEFT SIDEBAR -->
         <aside class="left-sidebar">
             <section class="profile-card">
                 <div class="profile-header">
@@ -143,7 +146,7 @@ $userEmail = $vEmail;
             </section>
         </aside>
 
-        <!-- MAIN FEED -->
+        <!-- MAIN FEED (CENTER) -->
         <section class="main-feed">
             <section class="create-post-card">
                 <div class="post-input">
@@ -199,7 +202,7 @@ $userEmail = $vEmail;
             <section class="posts-container" id="posts-container"></section>
         </section>
 
-
+        <!--RIGHT SIDEBAR -->
         <aside class="right-sidebar">
             <section class="trending-section" id="events-sidebar">
                 <div class="section-header">
@@ -217,7 +220,7 @@ $userEmail = $vEmail;
 <div id="toastContainer" class="toast-container"></div>
 
 <script>
-// GLOBAL USER DATA FROM PHP
+// GLOBAL USER DATA FROM PHP, connects PHP to Javascript
 const CURRENT_USER_NAME   = <?= json_encode($userName) ?>;
 const CURRENT_USER_EMAIL  = <?= json_encode($userEmail) ?>;
 const CURRENT_USER_AVATAR = <?= json_encode($vImgSrc) ?>;
@@ -241,7 +244,7 @@ function showToast(message) {
     }, 3000);
 }
 
-// Generic JSON
+// JSON fetch
 async function fetchJson(url, options = {}) {
     const res  = await fetch(url, options);
     const text = await res.text();
@@ -326,7 +329,7 @@ function renderPosts() {
                 🗑️ Delete
             </button>` : '';
 
-
+        // Report
         const reportButtonHtml = `
             <button class="post-action-btn" type="button" onclick="handleReport(${post.id})">
                 🚩 Report
@@ -444,7 +447,7 @@ async function handleLike(id) {
     }
 }
 
-// Show & hide comments
+// Show / hide comments
 function toggleComments(id) {
     const section = document.getElementById('comments-' + id);
     if (!section) return;
@@ -479,7 +482,7 @@ async function handleCommentSubmit(e, id) {
     return false;
 }
 
-// Delete post
+// Delete posts (only your posts)
 async function handleDelete(id) {
     const post = FEED_POSTS.find(p => p.id === id);
     if (!post) return;
@@ -505,7 +508,7 @@ async function handleDelete(id) {
     }
 }
 
-// Any Report goes straight to the ContactPage.php
+// Report: sneds you to the ContactPage.php
 function handleReport(id) {
     const params = new URLSearchParams({
         from: 'feed_report',
@@ -514,7 +517,7 @@ function handleReport(id) {
     window.location.href = 'ContactPage.php?' + params.toString();
 }
 
-
+// File
 function readFileAsDataURL(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
