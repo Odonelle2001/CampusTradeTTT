@@ -25,6 +25,11 @@ class EditController{
         $school = trim($post['school_name']  ?? '');
         $major  = trim($post['major']        ?? '');
         $city   = trim($post['city_state']   ?? '');
+        $newPassword = trim($post['new_password']  ?? '');
+        
+        $passwordValue = $newPassword !== '' 
+        ? password_hash($newPassword, PASSWORD_DEFAULT)
+        : null;
 
         $sql = "
             UPDATE accounts
@@ -33,7 +38,8 @@ class EditController{
                 acad_role  = ?,
                 school_name = ?,
                 major      = ?,
-                city_state = ?
+                city_state = ?,
+                password = COALESCE(?, password)
             WHERE id = ?
             LIMIT 1
         ";
@@ -44,13 +50,14 @@ class EditController{
         }
 
         $stmt->bind_param(
-            'ssssssi',
+            'sssssssi',
             $first,
             $last,
             $acad,
             $school,
             $major,
             $city,
+            $passwordValue,
             $accountId
         );
         

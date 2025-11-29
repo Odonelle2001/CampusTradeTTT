@@ -139,6 +139,9 @@ $vPay        = $vPay        ?? '';
       <option value="Other"     <?= ($vPay === 'Other')     ? 'selected' : '' ?>>Other</option>
     </select>
 
+    <label for="">New Password (leave blank to keep current):</label>
+    <input type="password" name="new_password">
+
     <input type="hidden" name="account_id" value="<?= (int)$vId ?>">
     <input type="hidden" name="edit_profile" value="1">
 
