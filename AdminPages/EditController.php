@@ -26,10 +26,12 @@ class EditController{
         $major  = trim($post['major']        ?? '');
         $city   = trim($post['city_state']   ?? '');
         $newPassword = trim($post['new_password']  ?? '');
-        
-        $passwordValue = $newPassword !== '' 
-        ? password_hash($newPassword, PASSWORD_DEFAULT)
-        : null;
+
+        if ($newPassword !== '') {
+            $passwordValue = password_hash($newPassword, PASSWORD_DEFAULT);
+        } else {
+            $passwordValue = null;
+        }
 
         $sql = "
             UPDATE accounts
