@@ -58,6 +58,28 @@ INSERT INTO `booklistings` (
   (19, 19, 'Human Anatomy & Physiology', '978000000118', 'Uploads/Books/book19.jpg', 64, 'New', 'Sold', 'BIOL201', 'user19@demo.edu', '2025-11-19 09:30:00'),
   (20, 20, 'Software Engineering', '978000000119', 'Uploads/Books/book20.jpg', 67, 'Used', 'Active', 'CS350', 'user20@demo.edu', '2025-11-20 09:30:00');
 
+
+INSERT INTO `userprofile` (`user_id`,`profile_image`,`preferred_pay`) VALUES
+  (1, 'Uploads/Profiles/profile01.jpg', 'Venmo'),
+  (2, 'Uploads/Profiles/profile02.jpg', 'PayPal'),
+  (3, 'Uploads/Profiles/profile03.jpg', 'CashApp'),
+  (4, 'Uploads/Profiles/profile04.jpg', 'Zelle'),
+  (5, 'Uploads/Profiles/profile05.jpg', 'Cash'),
+  (6, 'Uploads/Profiles/profile06.jpg', 'Venmo'),
+  (7, 'Uploads/Profiles/profile07.jpg', 'PayPal'),
+  (8, 'Uploads/Profiles/profile08.jpg', 'CashApp'),
+  (9, 'Uploads/Profiles/profile09.jpg', 'Zelle'),
+  (10, 'Uploads/Profiles/profile10.jpg', 'Cash'),
+  (11, 'Uploads/Profiles/profile11.jpg', 'Venmo'),
+  (12, 'Uploads/Profiles/profile12.jpg', 'PayPal'),
+  (13, 'Uploads/Profiles/profile13.jpg', 'CashApp'),
+  (14, 'Uploads/Profiles/profile14.jpg', 'Zelle'),
+  (15, 'Uploads/Profiles/profile15.jpg', 'Cash'),
+  (16, 'Uploads/Profiles/profile16.jpg', 'Venmo'),
+  (17, 'Uploads/Profiles/profile17.jpg', 'PayPal'),
+  (18, 'Uploads/Profiles/profile18.jpg', 'CashApp'),
+  (19, 'Uploads/Profiles/profile19.jpg', 'Zelle'),
+  (20, 'Uploads/Profiles/profile20.jpg', 'Cash');
 -- =========================================
 -- 20 demo tickets
 -- =========================================
