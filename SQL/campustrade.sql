@@ -39,14 +39,6 @@ CREATE TABLE `accounts` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `accounts`
---
-
-INSERT INTO `accounts` (`id`, `email`, `password`, `first_name`, `last_name`, `school_name`, `major`, `acad_role`, `city_state`, `created_at`) VALUES
-(17, 'qj9341wf@go.minnstate.edu', '$2y$10$fRzUNkaB91wn5ZAqUgTJgetlZlP/zaDpYg1IbgVhBjMR5lGmCK5yC', 'Marthe', 'Lab', 'Metropolitan State University', 'Computer Science', 'Student', '', '2025-10-29 03:51:58'),
-(18, 'hk8756oo@go.minnstate.edu', '$2y$10$gdU7Fq7/YHPw7ESs9NAuXONN.yJN8tSDdiaIEVDT6Ciqo.jZPn5Fm', 'Joab', 'Nyabuto', 'Metropolitan State University', 'Computer Science', 'Student', 'Saint Paul', '2025-11-03 03:49:05');
-
 -- --------------------------------------------------------
 --
 -- Table structure for table `booklistings`
@@ -92,18 +84,6 @@ CREATE TABLE `tickets` (
   `message` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tickets`
---
-
-INSERT INTO `tickets` (`id`, `name`, `email`, `message`, `created_at`) VALUES
-(1, 'Anthony Chang', 'fz7416lx@go.minnstate.edu', 'Test', '2025-11-25 22:48:07'),
-(2, 'Anthony Chang', 'fz7416lx@go.minnstate.edu', 'Test', '2025-11-25 22:48:18'),
-(3, 'Anthony', 'changanthony2000@gmail.com', 'Test123', '2025-11-26 00:14:01'),
-(4, 'Sim Chang', 'Anthony@gmail.com', 'THIS MESSAGH', '2025-11-27 01:16:47');
-
-
 
 -- --------------------------------------------------------
 --
