@@ -11,7 +11,7 @@ class ContactPageController
 
     public function submitTicket(): void
     {
-        // Basic validation + sanitize
+        // Validation
         $name    = trim($_POST['name'] ?? '');
         $email   = trim($_POST['email'] ?? '');
         $message = trim($_POST['message'] ?? '');
