@@ -95,13 +95,15 @@ $vPay        = $vPay        ?? '';
     <title>Update Profile</title>
     <link rel="stylesheet" href="../CSS/BasicSetUp.css">         <!-- Global styles -->
     <link rel="stylesheet" href="../CSS/HeaderNavBar.css">       <!-- Header, nav, layout -->
-    <link rel="stylesheet" href="../CSS/ReusableComponents.css"> <!-- Buttons, cards, modals -->
     <link rel="stylesheet" href="../CSS/LoginForm.css">
     <link rel="stylesheet" href="../CSS/BuyButtonPage.css">
     <link rel="stylesheet" href="../css/BuyerPage.css">
+    <link rel="stylesheet" href="../CSS/ReusableComponents.css"> <!-- Buttons, cards, modals -->
+    <link rel="stylesheet" href="../CSS/ProfileUpdate.css">
 
 </head>
 <body>
+<div class="profile-page-wrapper">
 <div class="profile-panel">
     <h2>Your Profile</h2>
 
